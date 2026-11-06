@@ -3,6 +3,68 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 00:0x · version_0.0.6：凋灵阵营统一 + 亡灵接触转化 + 炖菜材料
+
+产物：`final_modpack/version_0.0.6/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.1 MB）
+
+### 1. 「凋灵阵营」内部互不敌对
+
+`FactionRules` 从「CWS ↔ W.A.R. 不敌对」扩成四类同阵营：
+
+- CWS 生物（`witherstormmod:*`）
+- W.A.R. 生物（`withering_away_reborn:*`）
+- 凋灵（`minecraft:wither`）
+- 原版亡灵：zombie / husk / drowned / zombie_villager / skeleton / stray /
+  wither_skeleton / phantom / zombie_horse / skeleton_horse / zoglin
+
+阵营内互相设置攻击目标时取消（`LivingChangeTargetEvent`）；对玩家、对非亡灵生物不受影响。
+
+### 2. 有时空间隙时，亡灵会走过来并被转化
+
+`UndeadConversion`（每 20 tick 一次）：
+
+- 同维度存在活着的时空间隙才生效；
+- 原版亡灵在 32 格内锁定最近的 W.A.R. 生物，每 20 tick 重新下达寻路（避免被原版 AI 覆盖）；
+- 碰撞箱相交（膨胀 0.35 格）→ 走转化表变成对应的 W.A.R. 生物 + 灵魂粒子；
+- 转化表里没有的亡灵（骷髅、凋灵骷髅等）改为挂凋零 II，不会无限重复触发。
+
+
+### 追加（2026-11-07 00:3x，重做 0.0.6）：修启动崩溃 —— entityculling 内嵌的 TRender
+
+用户 00:19 的错误报告：客户端在 `Mod loading error` 阶段崩，报告里写
+`MOD trender ... ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 0`
+栈顶是 `dev.tr7zw.transition.manager.ConfigScreenManager.registerConfigScreen`。
+
+根因：`entityculling-forge-1.9.5` 用 jar-in-jar 内嵌了 `TRender` + `TRansition`，
+TRender 在**构造期**就调 `TRansition.ConfigScreenManager.registerConfigScreen`，
+而 Forge 是并行构造 mod 的 —— TRansition 自己的列表还没初始化好，就会 `add(1, ...)` 越界。
+这是竞态，所以 0.0.1–0.0.5 偶尔能过、这次正好撞上。
+
+修复：`tools/patch_entityculling.py` 生成副本
+`patched_mods/entityculling-forge-1.9.5-mc1.20.1-wc1.jar`：删掉内嵌的
+`TRender-1.0.10` 与 `TRansition-1.0.11`，并把 `META-INF/jarjar/metadata.json` 清空。
+entityculling 的实体剔除功能不依赖它们（只影响它的配置界面）。
+
+验证：把 0.0.6 的 51 个 mod 全部灌进客户端测试副本启动 →
+`Game took 40.378 seconds to start`，无 mod loading 崩溃、log 里再无 TRender/TRansition 报错。
+
+代价：entityculling 的配置界面打不开（功能本身正常）。
+
+### 3. W.A.R. 原材料可用于合成金苹果炖菜
+
+CWS 的炖菜配方是 `cure_ingredient 标签 + 迷之炖菜 + 金苹果 + cure_base 标签`。
+我们把 W.A.R. 的 3 个原材料物品加进 `witherstormmod:cure_ingredient` 标签：
+
+- 凋灵骨 `witherbone`
+- 凋灵骨碎片 `wither_bone_shard`
+- 凋灵茎块 `chunk_of_wither_stem`
+
+这样任意一种都能替代原来的「治愈材料」来合成炖菜（炖菜的「暂时压制凋零腐败 10 分钟」逻辑见 0.0.5）。
+
+---
+
+---
+
 ## 2026-11-06 22:5x · version_0.0.5：按反馈修判定 + 补齐交付件
 
 产物（三件）：
