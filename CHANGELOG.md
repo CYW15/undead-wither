@@ -3,6 +3,103 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-06 22:5x · version_0.0.5：按反馈修判定 + 补齐交付件
+
+产物（三件）：
+- 
+inal_modpack/version_0.0.5/不死的凋灵-0.0.5.mrpack（309.0 MB）
+- 
+inal_modpack/version_0.0.5/起始存档-不死的凋灵.zip（7.2 MB，含 48×48 战场平台 @ 512,70,0）
+- 
+inal_modpack/version_0.0.5/服务端-不死的凋灵.zip（346.4 MB，51 mod + config + 启动脚本）
+
+### 1. 判定改了：最后一只 corpse，而不是击杀计数
+
+- 通关成就 
+inal 现在只在「世界里已经没有任何时空间隙」时触发（onCorpseDied 里判断），
+  不再看「打死了几只加强版」；
+- 也就是说：你同时召 n 只凋灵 → 有 n 个 corpse（1 只加强 + n-1 只未加强），
+  只要把世界上所有 corpse 清空，就算通关；
+- 挑战计数只留在 /witherchallenge status 里做参考，不参与判定。
+
+### 2. 挑战播报全删
+
+截图里那几条 已击败 1/2、已击败 2/2、挑战完成、最后一只时空间隙已被击败 —— 感染终止了。
+全部去掉了，只在服务端日志里留一行。
+
+### 3. 修「击杀凋暴的 corpse 后它复活一次」
+
+根因：凋暴死亡时「死亡事件」和「看门狗」各补了一只 corpse，于是场上总有两只，
+打死一只另一只还在 → 看起来像复活。
+修复：每只凋暴的 UUID 只允许补一次 corpse（HANDLED_STORMS），死亡事件与看门狗互斥。
+
+### 4. 感染规则回到「只看世界上有没有 corpse」
+
+- 有 corpse → 感染继续（rage 锁、扩散、召唤都恢复）；
+- 一只不剩 → 感染终止：清掉场上 W.A.R. 生物、拦掉后续生成；
+- 之后再有凋灵死亡（W.A.R. 会给未加强 corpse）或凋暴死亡（我们给加强 corpse），感染自动重新开始。
+
+### 5. CWS 与 W.A.R. 生物互不敌对
+
+FactionRules 在 LivingChangeTargetEvent 上拦截：跨 mod 的目标直接取消。
+对玩家、对同 mod 生物的仇恨不受影响。
+
+### 6. rage mode：只要场上有加强 corpse 就锁
+
+CorpseRules 每秒检查一次，有加强版 corpse 就把 W.A.R. 的世界变量 
+age 置 true 并同步。
+
+### 7. 凋零腐败：可以「暂时治」，时长可指令配置
+
+- 吃 witherstormmod:golden_apple_stew（金苹果炖菜）→ 压制凋零腐败 **10 分钟**（默认），
+  到点自动回来；
+- /witherchallenge sickness <分钟> 改这个时长（存档持久化）；
+- 命令行外的实现：SicknessControl 每秒给已感染且不在压制期的玩家续 3 秒的腐败效果，
+  所以压制一结束就会立刻回来。
+
+### 8. 指南书补上指令页
+
+成书从 23 页变成 25 页，新增：/witherchallenge status|tags|recipes|entities|sickness 的说明，
+以及「感染只看世界上有没有时空间隙」这条规则。
+
+### 9. 音效（不新增任何音频文件）
+
+FxAndScaling：合成（铁砧放置 1.6）、铁砧升级（铁砧使用 1.2）、重击时空间隙（暴击音 0.6）、
+通关（成就提示音）；激活书（信标激活）与凋暴召唤（雷声）原本就有。
+
+### 10. Boss 血量缩放接上了
+
+凋暴 / 共生体加入世界时按在线人数 ×(1+0.5(n-1))（上限取配置 oss_health_multiplier），
+原血量存在实体 NBT 里，避免重复叠加。
+
+### 11. W.A.R. 中文化
+
+新增 ssets/withering_away_reborn/lang/zh_cn.json，翻译 127 个玩家可见的实体 / 物品 / 方块名
+（脚本 	ools/gen_war_lang.py，可继续加词条）。
+
+### 12. 出生点「凋暴小屋」的命令方块 → 灵魂沙（用户要求）
+
+CWS 会在出生点附近生成 *_storm_spawn_platform 结构（9 个生物群系变体），里面各有 2 个命令方块。
+处理：生成 CWS 的修改副本 patched_mods/witherstormmod-1.20.1-4.2.1-all-wc1.jar，
+把 9 个结构 NBT 里共 **18 个命令方块** 的 palette 名称换成 minecraft:soul_sand。
+
+- 做法：解 gzip → 字节级替换 minecraft:command_block（NBT 字符串自带长度前缀、复合标签无长度字段，
+  改长度安全）→ 重新 gzip；原件不动；
+- 脚本：	ools/patch_cws.py（可重复执行，幂等）；
+- 校验：替换后这 9 个结构里 command_block 出现次数 = 0，soul_sand = 27；
+  服务端实测 place template witherstormmod:storm_spawn_platform 正常加载（结构没损坏）。
+
+### 12. 关于「原版成就看不到」
+
+实测服务端加载进度：{minecraft=1271, witherstormmod=82, witherchallenge=9, withering_away_reborn=11, command_tool_expansion=13}，
+原版 1271 条都在。我们的 9 条是一个**独立的根标签页**，进度界面里点上面的标签切换即可；
+如果确实只剩一个标签，请把进度界面截图发我。
+（新增了 /witherchallenge advancements 可以现场打印各命名空间的数量。）
+
+---
+
+---
+
 ## 2026-11-06 21:5x · version_0.0.4：修 0.0.3 的两个问题 + 剩余功能一次补齐
 
 产物：`final_modpack/version_0.0.4/不死的凋灵-0.0.4.mrpack`（309.0 MB，51 mod）
