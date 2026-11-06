@@ -3,6 +3,77 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-06 21:5x · version_0.0.4：修 0.0.3 的两个问题 + 剩余功能一次补齐
+
+产物：`final_modpack/version_0.0.4/不死的凋灵-0.0.4.mrpack`（309.0 MB，51 mod）
+
+### A. 修 0.0.3 的两个问题（用户反馈）
+
+**A1. 凋暴死亡不释放加强版 corpse**
+
+原因：我以为这事 W.A.R. 会做。反编译确认 W.A.R. 的 `WhenWitherDiesProcedure` 只监听
+`minecraft:wither`（普通凋灵），**凋暴死亡根本不归它管**——所以这条从来没人实现。
+
+修复：`CorpseRules` 做了两层：
+- `LivingDeathEvent` 捕获凋暴死亡 → 20 tick 后在死亡点生成 `the_corpse_of_the_wither` 并立即强化；
+- 另加**看门狗**：所有在场的凋暴都登记 UUID + 最后坐标，一旦实体消失（死亡、被 /kill、被移除）
+  → 同样补一只加强版 corpse。这样不依赖 CWS 到底走不走死亡事件。
+
+实测（`/summon` 凋暴 → `/kill`）：
+
+```
+kill @e[type=witherstormmod:wither_storm] -> Killed Wither Storm
+data get ... the_corpse_of_the_wither Health -> 150.0f
+Attributes -> [{Base: 150.0d, Name: "generic.max_health"}, ...]
+```
+
+**A2. 感染是否继续「只看世界上有没有 corpse」，不看击败次数**
+
+改法：`InfectionControl` 的 `ended` 不再是单向闩锁——
+- 任意 corpse 出现（包括凋暴死亡新生成的那只）→ `ended = false`，广播「感染重新开始扩散」；
+- 所有 corpse 都不在了 → `ended = true`，广播「感染终止」，并清掉场上 W.A.R. 生物、拦掉后续生成。
+
+同时去掉任何「击杀次数」参与判定的逻辑（挑战进度是独立的，只影响成就/广播）。
+
+### B. 凋暴强化（`combat/StormCombat`）
+
+| 项 | 实现 |
+| --- | --- |
+| 1–3 阶段 8 连发 | 拦掉 CWS 自己射出的凋零之首，改由我们按「黑黑黑蓝黑黑黑蓝」重发，发间隔 4 tick |
+| 4 阶段起本体停火 | 本体射出的头颅一律取消 |
+| Head 机炮 | 阶段 ≥3 且全局冷却结束时，每 0.2 秒从头部发射 1 发蓝色头颅，持续 5 秒；之后全局冷却 8 秒 |
+| 牵引光束感染 | 每 20 tick 对每道激活的光束做射线检测，在落点半径 3 格按 `BlockInfection` 表感染方块 |
+| 召唤 W.A.R. 生物 | 每 5 秒 1–2 只（8–24 格外），带 `wither_storm_spawned` 标签；标签上限 60、全服 W.A.R. 上限 120；超 200 格自动移除 |
+
+### C. 凋灵共生体锁血（`combat/SymbiontLock`）
+
+锁点 3/4、1/2、1/4，状态存实体 NBT；贴着锁点时 `LivingHurtEvent` 直接取消（无音效无击退），
+`/kill` 与虚空仍然有效（`BYPASSES_INVULNERABILITY`）；每打掉一个 Wither Storm Head 解锁一档。
+
+### D. 9 个进度 + 3 个自定义触发器
+
+- `data/witherchallenge/advancements/` 下 9 个 JSON：root / kill_wither / first_core / craft_arrow /
+  awaken_storm / kill_storm / beacon_4 / craft_weapon / final；
+- 根节点背景用 CWS 的 `tainted_stone.png`（复制进 `assets/witherchallenge/textures/gui/advancements/backgrounds/`）；
+- 自定义触发器 `witherchallenge:awaken_storm / beacon_4 / final` 在 `FMLCommonSetupEvent` 里
+  `CriteriaTriggers.register(...)`（1.20.1 没有可用的 TRIGGER_TYPES 注册表常量，踩过一次）；
+- 触发点：箭召出凋暴 → awaken_storm；信标激活书 → beacon_4；两只加强 corpse 都被击败 → final（发给全服）。
+- 实测：`Loaded 1386 advancements`，我们这 9 个没有解析错误（唯一的报错是 wwst 自带的 `bwsb:stormlusioner_killed`）。
+
+### E. 挑战指南书（首次进服自动给）
+
+- `item/GuideBook`：把 `task/挑战指南.docx` 的 23 段正文写成成书（书名《不死的凋灵 · 挑战指南》，作者 cyw12）；
+- `item/GuideBookEvents`：玩家首次进服放进物品栏第一格（已给过就记在玩家 NBT 上）。
+
+### F. 配置（`WCConfig`，`config/witherchallenge-common.toml`）
+
+7 项：PVP 武器特效、宠物是否可被感染、Boss 血量倍率上限、召唤标签上限、全服 W.A.R. 上限、
+光束感染开关、加强 corpse 加速感染开关。按用户要求**没有**给「corpse 免伤」和「凋零腐败」做开关。
+
+---
+
+---
+
 ## 2026-11-06 20:4x · version_0.0.3：感染可结束 + 箭的命中逻辑 + 加强时空间隙
 
 产物：`final_modpack/version_0.0.3/不死的凋灵-0.0.3.mrpack`（308.9 MB，51 mod）
