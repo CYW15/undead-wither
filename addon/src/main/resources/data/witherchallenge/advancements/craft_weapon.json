@@ -1,0 +1,52 @@
+{
+  "display": {
+    "icon": {
+      "item": "witherchallenge:wither_end_knife"
+    },
+    "title": {
+      "translate": "advancements.witherchallenge.craft_weapon.title"
+    },
+    "description": {
+      "translate": "advancements.witherchallenge.craft_weapon.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "knife": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "witherchallenge:wither_end_knife"
+            ]
+          }
+        ]
+      }
+    },
+    "axe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "witherchallenge:wither_end_war_axe"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "knife"
+    ],
+    [
+      "axe"
+    ]
+  ],
+  "parent": "witherchallenge:beacon_4"
+}

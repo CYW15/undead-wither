@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "witherchallenge:infection_arrow"
+    },
+    "title": {
+      "translate": "advancements.witherchallenge.craft_arrow.title"
+    },
+    "description": {
+      "translate": "advancements.witherchallenge.craft_arrow.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "witherchallenge:infection_arrow"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ],
+  "parent": "witherchallenge:first_core"
+}

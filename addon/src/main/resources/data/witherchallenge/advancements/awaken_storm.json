@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:command_block"
+    },
+    "title": {
+      "translate": "advancements.witherchallenge.awaken_storm.title"
+    },
+    "description": {
+      "translate": "advancements.witherchallenge.awaken_storm.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "witherchallenge:awaken_storm",
+      "conditions": {}
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "witherchallenge:craft_arrow"
+}

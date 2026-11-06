@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "witherchallenge:infection_core"
+    },
+    "title": {
+      "translate": "advancements.witherchallenge.first_core.title"
+    },
+    "description": {
+      "translate": "advancements.witherchallenge.first_core.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "got": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "witherchallenge:infection_core"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "got"
+    ]
+  ],
+  "parent": "witherchallenge:kill_wither"
+}

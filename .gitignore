@@ -1,0 +1,14 @@
+# 构建产物（体积巨大，不进仓库）
+final_modpack/
+pack/
+patched_mods/
+_build/
+wip_*/
+addon/build/
+addon/.gradle/
+addon/run/
+addon/run-data/
+*.log
+
+# 本地缓存
+.gradle/

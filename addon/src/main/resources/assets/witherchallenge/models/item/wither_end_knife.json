@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "witherchallenge:item/wither_end_knife"
+  }
+}

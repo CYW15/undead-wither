@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "item": "witherstormmod:super_beacon"
+    },
+    "title": {
+      "translate": "advancements.witherchallenge.beacon_4.title"
+    },
+    "description": {
+      "translate": "advancements.witherchallenge.beacon_4.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "witherchallenge:beacon_4",
+      "conditions": {}
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "witherchallenge:kill_storm"
+}
