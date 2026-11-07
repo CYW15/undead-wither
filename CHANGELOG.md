@@ -3,6 +3,58 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 14:5x · version_0.0.9：凋零腐败改成走 CWS 自己的逻辑
+
+产物：`final_modpack/version_0.0.9/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
+
+### 问题
+
+0.0.8 里「感染力量之箭」给玩家挂的是我们自己 `addEffect(wither_sickness)` 的临时做法，
+和 CWS 原生的凋暴感染不是同一套，于是：
+效果阶段、治愈延迟、免疫期、死亡保留全都不一致，金苹果炖菜的治疗也和原版对不上。
+
+### 改法：完全交给 CWS 的 tracker
+
+`SicknessControl` 重写：
+
+- **感染**：箭命中玩家 → `WitherSicknessTracker.infect()`（就是凋暴感染用的那个 capability）
+  + 1 小时凋零 II。效果、阶段、治愈延迟、免疫期全部由 CWS 自己算；
+- **治疗**：金苹果炖菜走 CWS 原生的 `GoldenAppleStewItem → beginCure()`，我们不再插手；
+- **治愈后的处理**（每 20 tick 检查一次 `tracker.isInfected()`）：
+
+| 情况 | 结果 |
+| --- | --- |
+| 世界里**没有凋暴** | 永久治愈（不管设置成什么） |
+| 有凋暴 + `curemode permanent` | 永久治愈（和原版 CWS 一样） |
+| 有凋暴 + `curemode timed` | 先按 CWS 原生流程解除腐败，然后给 `凋零残响`（`witherchallenge:wither_echo`，无害）效果 N 分钟；时间到 → 重新感染 |
+
+- **死亡永远不治愈**：`PlayerEvent.Clone` 里把感染标记与 tracker 重新写回；
+- 新增状态效果 `witherchallenge:wither_echo`（凋零残响，NEUTRAL，无任何数值作用），
+  图标复用 CWS 的 `wither_sickness.png`。
+
+### 指令
+
+```
+/witherchallenge curemode permanent      # 永久治愈
+/witherchallenge curemode timed          # 限时治愈（默认）
+/witherchallenge curetime <分钟>          # 限时时长（默认 10 分钟；sickness 是它的别名）
+```
+
+### 实测（服务端）
+
+```
+witherchallenge curemode permanent → 治愈模式 = 永久
+witherchallenge curemode timed     → 治愈模式 = 限时（10 分钟后再次感染）
+witherchallenge curetime 3         → 时长已设为 3 分钟
+witherchallenge curemode timed     → 治愈模式 = 限时（3 分钟后再次感染）
+```
+
+（真机上「吃炖菜 → 延迟 → 解除 → 残响 → 再感染」这条链路需要玩家操作，服务端跑不了，留给你验收。）
+
+---
+
+---
+
 ## 2026-11-07 14:1x · version_0.0.8：时空间隙只吃终结武器的伤害
 
 产物：`final_modpack/version_0.0.8/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.9 MB）
