@@ -3,6 +3,30 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 16:0x · version_0.0.11：凋零残响换图标
+
+产物：`final_modpack/version_0.0.11/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.3 MB）
+
+### 改动
+
+0.0.9/0.0.10 里「凋零残响」（`wither_echo`）的图标是直接复制的 CWS 凋零腐败贴图，
+HUD 上两个效果长得一模一样，玩家分不清。换成自绘的 **18×18 回声环**：
+
+- 三层同心圆（外圈暗、中圈中紫、内圈亮紫，2px 线宽）+ 中心白色亮点；
+- 含义是「残留的回响 / 倒计时」，和凋零腐败的骷髅脸在 18px 下也能区分；
+- 生成脚本：`tools/make_echo_icon.py`（可重复执行，改颜色/圈数都很容易）；
+- 三个候选（回声环 / 褪色骷髅 / 紫晶碎片）的源文件在 `_build/icons/`。
+
+### 验证
+
+- 图标 256 字节、18×18 RGBA，已打进 `witherchallenge-1.0.0.jar` 的
+  `assets/witherchallenge/textures/mob_effect/wither_echo.png`；
+- 代码与 0.0.10 完全一致（这次只换贴图）。
+
+---
+
+---
+
 ## 2026-11-07 15:4x · version_0.0.10：修 0.0.9 的闪退（wither_echo 没注册）
 
 产物：`final_modpack/version_0.0.10/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
