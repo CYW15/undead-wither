@@ -3,6 +3,46 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 17:2x · version_0.0.14：转化表新增骷髅系 + 无对应目标不产生效果
+
+产物：`final_modpack/version_0.0.14/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
+
+### 1. 转化表新增两条
+
+| 原生物 | 转化为 |
+| --- | --- |
+| 骷髅 | 凋零骷髅（原版 `minecraft:wither_skeleton`） |
+| 流浪者 | 凋零骷髅（原版） |
+
+实现上把 `ConversionTable` 的值从「W.A.R. 短 id」改成**完整实体 id**，
+所以能同时指向 W.A.R. 生物和原版生物（这两个是原版目标）。
+
+### 2. 表里没有对应目标的亡灵 → 什么都不发生
+
+`UndeadConversion.convert()` 之前对没映射的亡灵挂凋零 II，现在直接 `return`，
+不产生任何效果（用户 2026-11-07 定）。
+
+### 3. `task/转化表.docx` 的更新
+
+沙箱里 `task/` 目录是**只读**的（写入被拒绝），所以没法原地改。做法：
+
+- 原件备份：`_build/backup/转化表-原始.docx`
+- 更新后的文件：`AI_document/task文档更新/转化表.docx`（在原表末尾加了骷髅、流浪者两行）
+
+把它拖回 `task/` 覆盖即可（或者在 Word 里手动加这两行）。
+
+### 实测
+
+```
+witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
+witherchallenge tags   → …｜凋零残响已注册=true
+本次启动 witherchallenge 相关异常：0
+```
+
+---
+
+---
+
 ## 2026-11-07 17:0x · version_0.0.13：残响对所有感染来源生效 + 四个确定性 bug
 
 产物：`final_modpack/version_0.0.13/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
