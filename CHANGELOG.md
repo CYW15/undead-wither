@@ -3,6 +3,50 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 19:3x · version_0.0.18：status 只按「世界上还有没有 corpse」显示
+
+产物：`final_modpack/version_0.0.18/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
+
+### 先核对 0.0.16 的判定（反编译 jar 确认）
+
+`version_0.0.16` 里的 `InfectionControl.onCorpseDied` 实际逻辑：
+
+```java
+for (ServerLevel l : level.getServer().getAllLevels()) {      // 所有维度
+    for (Entity e : l.getAllEntities()) {
+        if (id == "withering_away_reborn:the_corpse_of_the_wither" && e.isAlive()) {
+            anyLeft = true;
+        }
+    }
+}
+if (!anyLeft) {
+    s.ended = true;                     // 没有活着的 corpse → 感染结束
+    trigger(ModCriteria.FINAL, player); // 最后一个 corpse 被击败 → 最终成就
+}
+```
+
+也就是说：**0.0.16 的判定本来就是「世界上（所有维度）还有没有活着的时空间隙」，不是击败数量。**
+
+问题只出在 `status` 的**显示文本**上：它读的是 `challengeKilled` 这个纯展示用计数器，
+打印成「挑战 0/2」，看起来像是在按击杀数判定。
+
+### 0.0.18 改了什么
+
+`/witherchallenge status` 换成按维度统计活着的时空间隙：
+
+```
+[不死的凋灵] 配方 1361 条｜凋暴 0｜the Mangled 0｜
+活着的时空间隙 3（overworld=3 the_nether=0 bowels=0 the_end=0）｜感染结束=false
+```
+
+- 不再出现「x/2」这种击败计数；
+- 每个维度各显示几只，能直接看出「还有 3 只在主世界 → 感染未结束」；
+- 判定代码没有改动（原本就是对的）。
+
+---
+
+---
+
 ## 2026-11-07 19:1x · version_0.0.17：血条变灰 + 溺尸/尸壳转化
 
 产物：`final_modpack/version_0.0.17/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
