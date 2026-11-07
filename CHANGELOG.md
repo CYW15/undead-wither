@@ -3,6 +3,55 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 18:4x · version_0.0.16：删掉 3D 皮肤层，TRender 只留一份
+
+产物：`final_modpack/version_0.0.16/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
+
+### 0.0.15 为什么又崩了
+
+桌面 `错误报告-2026-11-7_18.13.09.zip`（18:34 覆盖的新内容）：
+
+```
+MOD entityculling: NoClassDefFoundError: dev/tr7zw/transition/manager/CodeManager
+  at dev.tr7zw.entityculling.EntityCullingModBase.onInitialize(EntityCullingModBase.java:55)
+```
+
+说明 **entityculling 1.11.3 在初始化阶段就依赖 TRansition**（不只是配置界面），
+所以「把它内嵌的 TRender/TRansition 删掉」这条路在 1.11.3 上走不通。
+（0.0.6 时删的是 1.9.5，那版没这个依赖，所以能启动。）
+
+### 这版换思路：只留一份 TRender
+
+两个 mod 都内嵌 TRender/TRansition，并行构造时两个调用方同时
+`registerConfigScreen` → 写坏 ArrayList。
+那就**只保留一个内嵌方**：
+
+- ✅ 保留 entityculling 1.11.3 **原版**（TRender/TRansition 完整，功能与配置界面都正常）；
+- ❌ 删除 `[3D 皮肤层] skinlayers3d`（纯外观 mod，它的 TRender 才是第二个调用方）。
+
+竞态不存在了（单调用方），也不用再阉割 entityculling。
+
+### 验证
+
+0.0.16 的 50 个 mod 启动客户端：
+
+```
+[18:42:14] [TRender] Initializing Client...
+[18:42:32] Game took 42.429 seconds to start     ← 主菜单
+无 ArrayIndexOutOfBounds / 无 NoClassDefFoundError
+```
+
+### 已经导入过 0.0.15 的话
+
+两个办法任选：
+1. 重新导入 0.0.16（推荐）；
+2. 或者把旧实例 `mods` 里的 `[3D 皮肤层] skinlayers3d-forge-1.10.1-mc1.20.1.jar` 删掉，
+   再把 `entityculling-forge-1.11.3-mc1.20.1-wc1.jar` 换回不带 `-wc1` 的 1.11.3 原版。
+
+---
+
+---
+
 ## 2026-11-07 18:2x · version_0.0.15：真正修掉启动崩溃（TRender 竞态）
 
 产物：`final_modpack/version_0.0.15/`（mrpack 309.0 MB / 服务端 zip 345.0 MB / 起始存档 8.5 MB）
