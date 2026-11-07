@@ -3,6 +3,98 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 17:0x · version_0.0.13：残响对所有感染来源生效 + 四个确定性 bug
+
+产物：`final_modpack/version_0.0.13/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
+
+### 1. 感染/残响不再关心腐败是怎么来的
+
+`SicknessControl` 彻底去掉 `wc_arrow_infected` 这类「来源标记」，
+现在只看玩家身上**实际有没有 `witherstormmod:wither_sickness` 效果**：
+
+- 任何来源（凋暴、感染箭、其它 mod）造成的腐败，走同一套规则；
+- 腐败消失的那一瞬间（10 tick 内检测到）→ 世界里**有凋暴**就立刻给残响（限时模式）；
+- 世界里没有凋暴，或模式为永久 → 不给残响，直接算康复；
+- 残响期间再获得腐败（任何来源）→ 残响立刻取消。
+
+### 2. 死亡不再错误地跳过残响
+
+`onClone` 改成：**死亡时身上确实有腐败才续感染**；如果是在残响期死亡，只保留残响计时，
+重生后按剩余时间补回效果，不会立刻变成腐败。
+
+### 3. `/kill` 计入合法击杀
+
+`CorpseRules` 的 legit 判定加了 `BYPASSES_INVULNERABILITY`（`/kill` 与虚空走这条），
+符合 T9「/kill 也认」。
+
+### 4. 成就「终结之刃」改为「刀 或 斧」
+
+`craft_weapon.json` 的 requirements 从 `[["knife","axe"]]`（同时满足）改成
+`[["knife"],["axe"]]`（任一即可）。
+
+### 5. 配置项接回代码
+
+之前只有 `boss_health_multiplier` 真正生效，现在补上：
+`summon_tag_cap` / `summon_total_cap`（凋暴召唤上限）、`beam_inflection`→`beam_infection`（光束感染开关）、
+`enhanced_corpse_spread`（加强 corpse 加速感染开关）。
+
+### 6. 亡灵「注意到」就转化（不需要接触）
+
+`UndeadConversion` 删掉了 `getNavigation().moveTo(...)`（之前每 20 tick 强推寻路会打断原版 AI），
+并且连「碰撞箱接触」也不要求了：每 10 tick 扫一次，只要某个原版亡灵
+**在它自己的侦测范围（`FOLLOW_RANGE`）内、且有视线（`hasLineOfSight`）** 看到任意 W.A.R. 生物，
+就直接转化。全程不碰 AI/寻路，亡灵该怎么走还怎么走。
+
+### 实测
+
+```
+witherchallenge tags   → …｜凋零残响已注册=true
+witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
+本次启动 witherchallenge 相关异常：0
+```
+
+（残响链路仍需真人验收：治愈 → 残响 → 中途再感染 → 残响消失。）
+
+---
+
+---
+
+## 2026-11-07 16:4x · version_0.0.12（重做）：以「实际效果」为准的互斥
+
+产物：`final_modpack/version_0.0.12/`（覆盖同名文件）
+
+### 为什么上一版没解决
+
+上一版判断「是否处于感染」用的是 CWS tracker 的 `isInfected()`。
+但 CWS 的治愈是有延迟的：tracker 先变成「未感染」，而玩家身上的
+`wither_sickness` **效果还在**，于是我的 tick 认为「已治愈」，就给上了残响 ——
+结果就是**腐败和残响同时挂在玩家身上**。
+
+### 这一版的原则
+
+**只看玩家身上实际有没有 `witherstormmod:wither_sickness` 效果**，不看 tracker 的内部字段：
+
+| 玩家身上 | 处理 |
+| --- | --- |
+| 有凋零腐败 | **立刻移除残响**（腐败优先），并记下 `wc_had_sickness=true` |
+| 没腐败 + 残响计时中 | 保持残响；效果被死亡清掉就按剩余时间补回 |
+| 没腐败 + 残响到期 | 取消残响 → `tracker.infect()` → 提示「凋零腐败又回来了」 |
+| 没腐败 + 没残响 + 曾经感染过 + **有凋暴** + 限时模式 | 挂上残响（设定分钟数） |
+| 没腐败 + 没残响 + 曾经感染过 + **没有凋暴** 或 永久模式 | 永久治愈，退出追踪 |
+
+另外 `MobEffectEvent.Applicable` 兜底：任何来源（含 CWS 自己）要给玩家挂凋零腐败时，
+**先撤掉残响**，所以两个图标不可能同时亮。
+
+### 验证
+
+- 打出来的 jar 里含新标记 `wc_had_sickness`，mrpack 内的 jar 与构建产物 sha1 一致；
+- 服务端启动正常：`Done`、`凋零残响已注册=true`、无异常；
+- 「吃炖菜 → 腐败消失 → 残响出现 → 到期 → 腐败回来」「中途再感染 → 残响消失」仍需真人验收。
+
+---
+
+---
+
 ## 2026-11-07 16:2x · version_0.0.12：凋零残响与凋零腐败互斥
 
 产物：`final_modpack/version_0.0.12/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.3 MB）
