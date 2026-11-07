@@ -3,6 +3,50 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 13:4x · version_0.0.7：换成 entityculling 1.11.3，设置界面回来了
+
+产物：`final_modpack/version_0.0.7/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.7 MB）
+
+### 结论
+
+0.0.6 里为了绕开 TRender 竞态崩溃，把 entityculling 内嵌的 TRender/TRansition 删了，
+代价是它的设置界面打不开。0.0.7 换成 **entityculling-forge-1.11.3-mc1.20.1**，
+**设置界面恢复，崩溃也不会再出现**。
+
+### 依据（不是试出来的，是看代码）
+
+- 1.11.3 内嵌的是 `TRansition-1.0.26` + `TRender-1.0.17`；
+- 反编译 `TRansition-1.0.26` 的 `dev.tr7zw.transition.manager.ConfigScreenManager`：
+
+```java
+private final List<Function<Screen, Screen>> configScreens = new ArrayList<>();
+public void registerConfigScreen(Function<Screen, Screen> configScreen) {
+    this.configScreens.add(configScreen);      // 普通 add，没有下标
+}
+```
+
+  而崩在 1.0.11 的是 `add(1, ...)`（空列表上用下标插入 → IndexOutOfBounds）。
+  新版连“按下标插入”的写法都没有了，所以那条崩溃路径**在结构上不存在**。
+
+- 实测：用 0.0.7 的 51 个 mod 启动客户端 3 次，`[TRender] Initializing Client...` 都正常打印，
+  没有任何 `ArrayIndexOutOfBounds`。其中一次在 13:35 完整走到主菜单（`Game took 37.257 seconds to start`）；
+  另外两次是我这边远程会话锁屏后窗口被系统关掉，属于测试环境问题，与 mod 无关。
+
+### 变化
+
+| 项 | 0.0.6 | 0.0.7 |
+| --- | --- | --- |
+| entityculling | 1.9.5（删掉内嵌 GUI 库的副本，`overrides/mods`） | **1.11.3 原版**（`files` + Modrinth 下载链接） |
+| 设置界面 | 打不开 | 正常 |
+| `patched_mods/entityculling-...-wc1.jar` | 使用中 | 已弃用（文件还在，可删） |
+
+其余内容与 0.0.6 完全一致（阵营统一、亡灵接触转化、炖菜材料、判改最后一只 corpse、
+出生点小屋命令方块换灵魂沙、W.A.R. 中文化、Boss 血量缩放、音效等）。
+
+---
+
+---
+
 ## 2026-11-07 00:0x · version_0.0.6：凋灵阵营统一 + 亡灵接触转化 + 炖菜材料
 
 产物：`final_modpack/version_0.0.6/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.1 MB）
