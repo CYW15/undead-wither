@@ -3,6 +3,44 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 15:4x · version_0.0.10：修 0.0.9 的闪退（wither_echo 没注册）
+
+产物：`final_modpack/version_0.0.10/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
+
+### 崩溃
+
+用户 0.0.9 玩着玩着闪退，报告：
+
+```
+java.lang.NullPointerException: Registry Object not present: witherchallenge:wither_echo
+  at com.mogaidiaolin.witherchallenge.combat.SicknessControl.onServerTick(SicknessControl.java:94)
+```
+
+### 根因
+
+0.0.9 我加了个新状态效果 `witherchallenge:wither_echo`（凋零残响），但**忘了在主类里注册**
+`ModEffects`：改主类时我用的锚点是 `ModCriteria.register(modBus);`，
+而那一行在 0.0.4 就已经改成事件注册、被删掉了 —— 替换没命中，静默什么都没做。
+于是 `RegistryObject.get()` 在第一次走「限时治愈」分支时直接 NPE，服务端 tick 崩溃。
+
+### 修复
+
+1. 主类补上 `ModEffects.register(modBus);`（现在 Items / Entities / Tabs / Effects 全注册）；
+2. `SicknessControl` 里对 `WITHER_ECHO` 加了 `isPresent()` 防御，即使将来再漏注册也不会崩服；
+3. `/witherchallenge tags` 增加一项「凋零残响已注册」，以后一眼就能查。
+
+### 实测
+
+```
+witherchallenge tags → 感染箭∈arrows=true｜刀/斧∈command_block_tools=true｜凋零残响已注册=true
+witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
+日志里没有任何 wither_echo / Registry Object not present 报错
+```
+
+---
+
+---
+
 ## 2026-11-07 14:5x · version_0.0.9：凋零腐败改成走 CWS 自己的逻辑
 
 产物：`final_modpack/version_0.0.9/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
