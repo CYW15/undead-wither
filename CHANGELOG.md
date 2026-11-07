@@ -3,6 +3,43 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 14:1x · version_0.0.8：时空间隙只吃终结武器的伤害
+
+产物：`final_modpack/version_0.0.8/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.9 MB）
+
+### 问题
+
+用户反馈「凋暴会误伤 corpse」：W.A.R. 自带的免疫只写了玩家近战、箭、药水、火、摔、仙人掌、
+溺水、雷、爆炸、三叉戟、铁砧、龙息、凋零、凋零之首这些来源；
+凋暴的**火焰头颅**（`witherstormmod:flaming_wither_skull`，伤害类型是 `mob_attack`）
+以及其它生物的近战不在名单里，照样能扣时空间隙的血。
+
+### 改法
+
+`WeaponCombatEvents` 加了一道总闸 `LivingAttackEvent`：
+
+- 目标是时空间隙时，**默认全部取消**；
+- 仅两个例外放行：
+  1. 我们自己打出去的终结武器伤害（用 `INSIDE_OUR_HIT` 标记包住那一次 `hurt`）；
+  2. 带 `BYPASSES_INVULNERABILITY` 的来源（`/kill`、虚空、`out_of_world`），
+     保证 T9 里「/kill 也认」的约定不丢。
+
+### 实测（服务端 /damage）
+
+```
+summon corpse                                  → Health 100.0
+damage 40 mob_attack      → Target is invulnerable to the given damage type   health 100.0
+damage 40 player_attack   → Target is invulnerable                            health 100.0
+damage 40 wither_skull    → Target is invulnerable                            health 100.0
+damage 40 out_of_world    → Applied 40.0 damage                                health 60.0
+```
+
+（`/kill` 走的就是 `out_of_world` 这一类，所以仍可用；凋暴头颅、其它生物近战全部无效。）
+
+---
+
+---
+
 ## 2026-11-07 13:4x · version_0.0.7：换成 entityculling 1.11.3，设置界面回来了
 
 产物：`final_modpack/version_0.0.7/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.7 MB）
