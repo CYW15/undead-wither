@@ -3,6 +3,43 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 19:1x · version_0.0.17：血条变灰 + 溺尸/尸壳转化
+
+产物：`final_modpack/version_0.0.17/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
+
+### 1. 有腐败但血条不变灰
+
+**根因**：血条（红心）变灰是**原版凋零效果**的表现。
+之前只有「感染箭命中」那一下才给凋零 II（1 小时）；
+如果是**被凋暴照到**感染的，身上有凋零腐败、却没有凋零效果 → 血条保持红色。
+这就是「有时候有腐败、血条没变灰」的来源。
+
+**修法**：`SicknessControl` 每个检测周期，只要玩家身上有凋零腐败、却没有凋零效果，
+就补一个凋零 II（1 小时，不显示粒子）。现在「有腐败 ⇒ 血条变灰」恒成立。
+
+### 2. 转化表新增溺尸、尸壳
+
+按 `task文档更新/转化表.docx` 里新增的两行：
+
+| 原生物 | 转化为 |
+| --- | --- |
+| 溺尸 `minecraft:drowned` | NewWitheringZombie |
+| 尸壳 `minecraft:husk` | NewWitheringZombie |
+
+和僵尸走同一条路径（`ConversionTable`）。
+
+### 实测
+
+```
+witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
+witherchallenge tags   → …｜凋零残响已注册=true
+本次启动 witherchallenge 相关异常：0
+```
+
+---
+
+---
+
 ## 2026-11-07 18:4x · version_0.0.16：删掉 3D 皮肤层，TRender 只留一份
 
 产物：`final_modpack/version_0.0.16/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
