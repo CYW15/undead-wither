@@ -3,6 +3,62 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-07 18:2x · version_0.0.15：真正修掉启动崩溃（TRender 竞态）
+
+产物：`final_modpack/version_0.0.15/`（mrpack 309.0 MB / 服务端 zip 345.0 MB / 起始存档 8.5 MB）
+
+### 诊断（基于桌面 `错误报告-2026-11-7_18.13.09.zip`）
+
+```
+MOD trender (1.0.17) has failed to load correctly
+java.lang.ArrayIndexOutOfBoundsException: Index 1 out of bounds for length 0
+  at java.util.ArrayList.add(ArrayList.java:484)
+  at dev.tr7zw.transition.manager.ConfigScreenManager.registerConfigScreen(ConfigScreenManager.java:13)
+  at dev.tr7zw.trender.gui.impl.client.LibGuiClient.onInitializeClient(LibGuiClient.java:38)
+```
+
+0.0.14 用的是 entityculling **1.11.3**（自带 TRender 1.0.17 + TRansition 1.0.26）。
+我反编译看了它的源码：`ConfigScreenManager` 的 `add()` 本身没错，
+错在**两个 mod 同时调它**：
+
+| mod | 内嵌的 GUI 库 |
+| --- | --- |
+| entityculling 1.11.3 | TRender 1.0.17 + TRansition 1.0.26 |
+| **3D 皮肤层 skinlayers3d 1.10.1** | TRender 1.0.10 + TRansition 1.0.11 |
+
+Forge 是**并行**构造 mod 的，两边同时往同一个非线程安全的 `ArrayList` 里 `add`，
+内部状态被写坏 → `add` 里数组越界。所以换版本没用（0.0.6 用 1.9.5 崩、0.0.14 用 1.11.3 还是崩）。
+
+### 修法
+
+`tools/patch_entityculling.py` 生成副本
+`patched_mods/entityculling-forge-1.11.3-mc1.20.1-wc1.jar`：**删掉它内嵌的 TRender/TRansition**，
+让「注册配置界面」只剩 skinlayers3d 一个调用方，竞态消失。
+
+- entityculling 的实体剔除功能不依赖 GUI 库，照常工作；
+- 代价：entityculling 自己的设置界面打不开（skinlayers3d 的还能开）。
+
+### 验证
+
+用 0.0.15 的 51 个 mod 启动客户端 **两次**：
+
+```
+18:19  Game took 32.212 seconds to start   ← 主菜单
+18:21  Game took 29.297 seconds to start   ← 主菜单
+两次日志里都没有 TRender / TRansition / ArrayIndexOutOfBounds
+```
+
+### 如果你已经导入过 0.0.14
+
+旧的实例里还是 1.11.3 原版。两个办法任选：
+1. 删掉旧实例，重新导入 0.0.15；
+2. 或者只把实例 `mods` 里的 `entityculling-forge-1.11.3-mc1.20.1.jar` 换成
+   `AI_document/pack/overrides/mods/entityculling-forge-1.11.3-mc1.20.1-wc1.jar`。
+
+---
+
+---
+
 ## 2026-11-07 17:2x · version_0.0.14：转化表新增骷髅系 + 无对应目标不产生效果
 
 产物：`final_modpack/version_0.0.14/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
