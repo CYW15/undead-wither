@@ -3,6 +3,34 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-08 17:0x · version_0.0.22：整合包改名《凋亡回响》
+
+产物：`final_modpack/version_0.0.22/`
+（**凋亡回响**-0.0.22.mrpack 309.0 MB / 服务端-**凋亡回响**.zip 482.6 MB / 起始存档-**凋亡回响**.zip 8.6 MB）
+
+### 改名范围
+
+显示名统一为 **《凋亡回响》**，**modid 仍是 `witherchallenge`**（存档、配方、进度 ID 不受影响）：
+
+- `mods.toml` 的 displayName / description；
+- 所有游戏内提示前缀 `[凋亡回响]`、指南书标题与内容、创造模式标签页名、进度页名；
+- 语言文件（zh_cn / en_us）；
+- mrpack / 服务端 zip / 起始存档 zip 的文件名；
+- README、服务端包里的 `怎么启动.txt`。
+
+CHANGELOG 里的历史条目保留原文（记录当时叫《不死的凋灵》）。
+
+### 实测
+
+```
+witherchallenge status → [凋亡回响] 配方 1361 条｜…
+witherchallenge tags   → [凋亡回响] 感染箭∈arrows=true｜…｜凋零残响已注册=true
+```
+
+---
+
+---
+
 ## 2026-11-08 17:0x · version_0.0.21：没有感染源就不许生成 W.A.R. + 凋灵产凋零骷髅
 
 产物：`final_modpack/version_0.0.21/`（mrpack 309.0 MB / 服务端 zip 482.6 MB / 起始存档 8.5 MB）
