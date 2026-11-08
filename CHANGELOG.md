@@ -3,6 +3,59 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-08 16:1x · version_0.0.19（测试版）：凋灵的凋暴式存在感
+
+产物：`final_modpack/version_0.0.19/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
+
+### 1. 强制刷新（已验证）
+
+`WitherPresence`：只要凋灵活着，每 20 tick 把它周围的 5×5 区块 `setChunkForced(true)`；
+凋灵死亡后同一 tick 周期内自动 `setChunkForced(false)` 回收（不会永久污染存档的 forceload 列表）。
+
+实测：
+```
+summon wither → forceload query 0 0 → Chunk at [0, 0] ... is marked for force loading
+kill wither   → forceload query 0 0 → ... is not marked for force loading
+```
+
+### 2. 存在即锁黑夜（已验证）
+
+所在维度只要有活着的凋灵，每 20 tick 把 `dayTime` 钉到 18000（夜晚），**与玩家距离无关**。
+凋灵消失后不再干预，昼夜自然恢复。
+
+实测：
+```
+summon wither → time set day（1000）→ 3 秒后 time query daytime = 18000
+kill wither   → time set day（1000）→ time query daytime = 6545（不再被锁）
+```
+
+### 3. 不强制追击
+
+没有对凋灵的 AI / 目标做任何修改：它仍按原版逻辑只在侦测范围内追人，
+玩家跑远不会跟过来（没有传送、没有强制 setTarget）。
+
+### 4. 命令护身符：凋灵 / 凋暴 分开定位
+
+- 手持 CWS 的护身符（`witherstormmod:amulet`）时，动作栏每 20 tick 显示一行：
+  `凋灵 128 格 东北　凋暴 342 格 西`（两个数值**各自独立计算**，互不影响）；
+- 新增测试命令：`/witherchallenge find wither` 与 `/witherchallenge find storm`。
+
+### 5. 「远处可见」暂未实现（需要客户端渲染）
+
+凋暴能远看是因为它体积巨大 + 自定义渲染 + 高追踪距离；
+原版凋灵做不到同样效果，需要：
+① 服务端把凋灵位置同步给客户端（自定义包）；
+② 客户端在天空/HUD 上画标记（方向 + 距离 + 剪影）。
+这属于客户端功能，没放进 0.0.19（测试版先验证服务端机制），
+方案确认后在 0.1.1 里做。可选风格：
+- A. HUD 边缘箭头 + 距离（最省事，类似雷达）；
+- B. 天空中的暗色剪影 / 光束（更接近「看见凋暴」的感觉，工作量大）；
+- C. A + B 都做。
+
+---
+
+---
+
 ## 2026-11-07 19:3x · version_0.0.18：status 只按「世界上还有没有 corpse」显示
 
 产物：`final_modpack/version_0.0.18/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
