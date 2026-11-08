@@ -3,6 +3,51 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-08 17:0x · version_0.0.21：没有感染源就不许生成 W.A.R. + 凋灵产凋零骷髅
+
+产物：`final_modpack/version_0.0.21/`（mrpack 309.0 MB / 服务端 zip 482.6 MB / 起始存档 8.5 MB）
+
+### 0. 先澄清「凋灵杀死的生物会传染」
+
+这是 **W.A.R. 自带的** `WhenKilledByWitherProcedure`：凋灵击杀的生物会被转换成 W.A.R. 生物。
+不是我们写的，也**按用户要求保留**（我们的新拦截不会影响它 —— 凋灵活着时属于「有感染源」）。
+
+### 1. 没有感染源 → W.A.R. 生物一个都不许新生成
+
+`InfectionControl.onEntityJoin` 新增判定：
+
+```
+同一维度里，只要「活着的凋暴 / 活着的凋灵 / 活着的时空间隙」三者都没有
+→ 取消所有 withering_away_reborn:* 实体的生成
+```
+
+- 已有的 W.A.R. 生物会按原版规则自然 despawn，于是「杀一个少一个」，很快清空；
+- 死亡演出链（`wither_post_death_cutscane_entitty`、`the_aftermath`）放行，避免凋灵死亡演出被拦掉；
+- 之前「感染已结束（ended=true）就禁止生成」的逻辑保留，两者取并集。
+
+实测：
+```
+有 corpse 时 summon withering_zombie → Test passed, count: 1
+杀掉 corpse 后再 summon            → Test failed（被拦）
+```
+
+### 2. 凋灵每 5 分钟产 4 只凋零骷髅
+
+`WitherPresence`：每只活着的凋灵，每 5 分钟（6000 tick）在周围 10 格内生成 4 只
+`minecraft:wither_skeleton`（MOB_SUMMONED，不吃自然生成限制）；附近 32 格内已有 24 只时不再增加。
+
+### 3. 关于「凋灵感染方块」
+
+- **原版凋灵：没有**（只会破坏方块）；
+- **W.A.R.**：只有凋灵**死亡之后**，由时空间隙去侵蚀方块；
+- **我们**：没有给「活着的凋灵」加方块感染（之前提的 A/B/C 方案没做）。
+
+想让活着的凋灵也慢慢侵蚀方块，说一声，加个开关就行。
+
+---
+
+---
+
 ## 2026-11-08 16:2x · version_0.0.20：护身符 tooltip 第 6 行 = 最近凋灵
 
 产物：`final_modpack/version_0.0.20/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
