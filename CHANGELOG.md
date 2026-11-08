@@ -3,6 +3,24 @@
 《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
 （仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
 
+## 2026-11-08 18:0x · version_0.0.24：删除「远处可见」
+
+产物：`final_modpack/version_0.0.24/`
+（凋亡回响-0.0.24.mrpack 309.0 MB / 服务端-凋亡回响.zip 482.6 MB / 起始存档-凋亡回响.zip 8.6 MB）
+
+用户评估 0.0.23 的投影方案后决定不做：
+
+- 删除 `client/WitherOmenRenderer.java`（世界坐标的暗紫四边形投影）；
+- jar 里已确认不含该类；
+- 定位凋灵的职责交回 **CWS 护身符**（物品栏悬停显示「凋灵：128 格 东北」那一行）与
+  `/witherchallenge find wither`。
+
+保留：网络通道与 `WitherPosClient` 缓存（护身符 tooltip 靠它们，凋灵在远处也有数据）。
+
+---
+
+---
+
 ## 2026-11-08 17:1x · version_0.0.23：凋灵的远距离投影
 
 产物：`final_modpack/version_0.0.23/`
