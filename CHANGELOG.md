@@ -1,7 +1,10 @@
-# CHANGELOG
+# 变更日志（Change Log）
 
-《凋亡回响》整合包（Minecraft 1.20.1 + Forge 47.4.28）开发记录。
-（仓库初始化时由脚本按版本重建；更早的细节以各版本构建产物为准。）
+> 规则：**原 jar 一律不动**。凡是要改第三方 mod，先复制出副本，只在副本上改，
+> 并在本文件记一条「改了哪个 jar / 改了哪个类或数据文件 / 为什么 / 怎么回滚」。
+> 新功能优先做在附属 mod `witherchallenge` 里，不动 CWS / W.A.R. 内部。
+
+---
 
 ## 2026-11-09 17:4x · version_0.0.27：加入使用许可（禁止售卖）
 
@@ -17,9 +20,6 @@
 声称原创、单独再分发修改过的第三方 jar**；第三方模组版权归原作者。
 
 ---
-
----
-
 ## 2026-11-08 19:3x · version_0.0.26：指南书加鸣谢页 + 署名
 
 产物：`final_modpack/version_0.0.26/`
@@ -49,9 +49,6 @@
 - 通关检查表落款 → `—— DeepSeek Harness`
 
 ---
-
----
-
 ## 2026-11-08 18:0x · version_0.0.24：删除「远处可见」
 
 产物：`final_modpack/version_0.0.24/`
@@ -67,9 +64,6 @@
 保留：网络通道与 `WitherPosClient` 缓存（护身符 tooltip 靠它们，凋灵在远处也有数据）。
 
 ---
-
----
-
 ## 2026-11-08 17:1x · version_0.0.23：凋灵的远距离投影
 
 产物：`final_modpack/version_0.0.23/`
@@ -95,9 +89,6 @@
 如果实际看着不对（太亮/太暗/位置偏），下个版本我直接删掉这一条，不纠缠。
 
 ---
-
----
-
 ## 2026-11-08 17:0x · version_0.0.22：整合包改名《凋亡回响》
 
 产物：`final_modpack/version_0.0.22/`
@@ -123,9 +114,6 @@ witherchallenge tags   → [凋亡回响] 感染箭∈arrows=true｜…｜凋零
 ```
 
 ---
-
----
-
 ## 2026-11-08 17:0x · version_0.0.21：没有感染源就不许生成 W.A.R. + 凋灵产凋零骷髅
 
 产物：`final_modpack/version_0.0.21/`（mrpack 309.0 MB / 服务端 zip 482.6 MB / 起始存档 8.5 MB）
@@ -168,9 +156,22 @@ witherchallenge tags   → [凋亡回响] 感染箭∈arrows=true｜…｜凋零
 想让活着的凋灵也慢慢侵蚀方块，说一声，加个开关就行。
 
 ---
+## 2026-11-08 16:3x · 服务端包改成「解压即用」完整版
+
+`服务端-不死的凋灵.zip`（v0.0.20 目录内，482.6 MB）重新制作：
+
+| 之前 | 现在 |
+| --- | --- |
+| 只有 mods + config + 启动脚本 | **加了 `libraries/`（158 MB，Forge 运行时库）** |
+| `run.bat` 会因缺 `win_args.txt` 直接失败 | 解压即可双击启动 |
+| 端口沿用测试值 25599、RCON 开着、motd=WC-Dev-Test | 端口 25565、RCON 关闭、motd 改中文 |
+| eula=false 需手动改 | eula=true，直接能开服 |
+| `user_jvm_args.txt` 里 -Xmx 是注释 | 写成 `-Xms2G -Xmx4G` |
+| 说明文档 4 行 | 补齐端口映射 / OP / 内存 / 升级 / 常用指令 |
+
+实测：**全新解压到空目录 → 直接启动 → `Done (…)` 成功进入就绪状态**。
 
 ---
-
 ## 2026-11-08 16:2x · version_0.0.20：护身符 tooltip 第 6 行 = 最近凋灵
 
 产物：`final_modpack/version_0.0.20/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
@@ -201,9 +202,6 @@ witherchallenge tags   → [凋亡回响] 感染箭∈arrows=true｜…｜凋零
 - tooltip 本身需要真人开物品栏悬停确认（我这边无法模拟 UI）。
 
 ---
-
----
-
 ## 2026-11-08 16:1x · version_0.0.19（测试版）：凋灵的凋暴式存在感
 
 产物：`final_modpack/version_0.0.19/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
@@ -254,9 +252,6 @@ kill wither   → time set day（1000）→ time query daytime = 6545（不再�
 - C. A + B 都做。
 
 ---
-
----
-
 ## 2026-11-07 19:3x · version_0.0.18：status 只按「世界上还有没有 corpse」显示
 
 产物：`final_modpack/version_0.0.18/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
@@ -298,9 +293,6 @@ if (!anyLeft) {
 - 判定代码没有改动（原本就是对的）。
 
 ---
-
----
-
 ## 2026-11-07 19:1x · version_0.0.17：血条变灰 + 溺尸/尸壳转化
 
 产物：`final_modpack/version_0.0.17/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
@@ -335,9 +327,6 @@ witherchallenge tags   → …｜凋零残响已注册=true
 ```
 
 ---
-
----
-
 ## 2026-11-07 18:4x · version_0.0.16：删掉 3D 皮肤层，TRender 只留一份
 
 产物：`final_modpack/version_0.0.16/`（mrpack 309.0 MB / 服务端 zip 344.3 MB / 起始存档 8.5 MB）
@@ -384,9 +373,6 @@ MOD entityculling: NoClassDefFoundError: dev/tr7zw/transition/manager/CodeManage
    再把 `entityculling-forge-1.11.3-mc1.20.1-wc1.jar` 换回不带 `-wc1` 的 1.11.3 原版。
 
 ---
-
----
-
 ## 2026-11-07 18:2x · version_0.0.15：真正修掉启动崩溃（TRender 竞态）
 
 产物：`final_modpack/version_0.0.15/`（mrpack 309.0 MB / 服务端 zip 345.0 MB / 起始存档 8.5 MB）
@@ -440,9 +426,6 @@ Forge 是**并行**构造 mod 的，两边同时往同一个非线程安全的 `
    `AI_document/pack/overrides/mods/entityculling-forge-1.11.3-mc1.20.1-wc1.jar`。
 
 ---
-
----
-
 ## 2026-11-07 17:2x · version_0.0.14：转化表新增骷髅系 + 无对应目标不产生效果
 
 产物：`final_modpack/version_0.0.14/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
@@ -480,9 +463,6 @@ witherchallenge tags   → …｜凋零残响已注册=true
 ```
 
 ---
-
----
-
 ## 2026-11-07 17:0x · version_0.0.13：残响对所有感染来源生效 + 四个确定性 bug
 
 产物：`final_modpack/version_0.0.13/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.4 MB）
@@ -536,9 +516,6 @@ witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
 （残响链路仍需真人验收：治愈 → 残响 → 中途再感染 → 残响消失。）
 
 ---
-
----
-
 ## 2026-11-07 16:4x · version_0.0.12（重做）：以「实际效果」为准的互斥
 
 产物：`final_modpack/version_0.0.12/`（覆盖同名文件）
@@ -572,9 +549,6 @@ witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
 - 「吃炖菜 → 腐败消失 → 残响出现 → 到期 → 腐败回来」「中途再感染 → 残响消失」仍需真人验收。
 
 ---
-
----
-
 ## 2026-11-07 16:2x · version_0.0.12：凋零残响与凋零腐败互斥
 
 产物：`final_modpack/version_0.0.12/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.3 MB）
@@ -608,9 +582,6 @@ witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
 （「治愈 → 残响 → 中途再感染 → 残响消失」这条链路要真人操作，服务端跑不了，仍需你验收。）
 
 ---
-
----
-
 ## 2026-11-07 16:0x · version_0.0.11：凋零残响换图标
 
 产物：`final_modpack/version_0.0.11/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.3 MB）
@@ -632,9 +603,6 @@ HUD 上两个效果长得一模一样，玩家分不清。换成自绘的 **18×
 - 代码与 0.0.10 完全一致（这次只换贴图）。
 
 ---
-
----
-
 ## 2026-11-07 15:4x · version_0.0.10：修 0.0.9 的闪退（wither_echo 没注册）
 
 产物：`final_modpack/version_0.0.10/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
@@ -670,9 +638,6 @@ witherchallenge status → 配方 1361 条｜感染结束=false｜挑战 0/2
 ```
 
 ---
-
----
-
 ## 2026-11-07 14:5x · version_0.0.9：凋零腐败改成走 CWS 自己的逻辑
 
 产物：`final_modpack/version_0.0.9/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 8.2 MB）
@@ -722,9 +687,6 @@ witherchallenge curemode timed     → 治愈模式 = 限时（3 分钟后再次
 （真机上「吃炖菜 → 延迟 → 解除 → 残响 → 再感染」这条链路需要玩家操作，服务端跑不了，留给你验收。）
 
 ---
-
----
-
 ## 2026-11-07 14:1x · version_0.0.8：时空间隙只吃终结武器的伤害
 
 产物：`final_modpack/version_0.0.8/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.9 MB）
@@ -759,9 +721,6 @@ damage 40 out_of_world    → Applied 40.0 damage                               
 （`/kill` 走的就是 `out_of_world` 这一类，所以仍可用；凋暴头颅、其它生物近战全部无效。）
 
 ---
-
----
-
 ## 2026-11-07 13:4x · version_0.0.7：换成 entityculling 1.11.3，设置界面回来了
 
 产物：`final_modpack/version_0.0.7/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.7 MB）
@@ -803,9 +762,6 @@ public void registerConfigScreen(Function<Screen, Screen> configScreen) {
 出生点小屋命令方块换灵魂沙、W.A.R. 中文化、Boss 血量缩放、音效等）。
 
 ---
-
----
-
 ## 2026-11-07 00:0x · version_0.0.6：凋灵阵营统一 + 亡灵接触转化 + 炖菜材料
 
 产物：`final_modpack/version_0.0.6/`（mrpack 309.0 MB / 服务端 zip 346.4 MB / 起始存档 7.1 MB）
@@ -865,23 +821,16 @@ CWS 的炖菜配方是 `cure_ingredient 标签 + 迷之炖菜 + 金苹果 + cure
 这样任意一种都能替代原来的「治愈材料」来合成炖菜（炖菜的「暂时压制凋零腐败 10 分钟」逻辑见 0.0.5）。
 
 ---
-
----
-
 ## 2026-11-06 22:5x · version_0.0.5：按反馈修判定 + 补齐交付件
 
 产物（三件）：
-- 
-inal_modpack/version_0.0.5/不死的凋灵-0.0.5.mrpack（309.0 MB）
-- 
-inal_modpack/version_0.0.5/起始存档-不死的凋灵.zip（7.2 MB，含 48×48 战场平台 @ 512,70,0）
-- 
-inal_modpack/version_0.0.5/服务端-不死的凋灵.zip（346.4 MB，51 mod + config + 启动脚本）
+- inal_modpack/version_0.0.5/不死的凋灵-0.0.5.mrpack（309.0 MB）
+- inal_modpack/version_0.0.5/起始存档-不死的凋灵.zip（7.2 MB，含 48×48 战场平台 @ 512,70,0）
+- inal_modpack/version_0.0.5/服务端-不死的凋灵.zip（346.4 MB，51 mod + config + 启动脚本）
 
 ### 1. 判定改了：最后一只 corpse，而不是击杀计数
 
-- 通关成就 
-inal 现在只在「世界里已经没有任何时空间隙」时触发（onCorpseDied 里判断），
+- 通关成就 inal 现在只在「世界里已经没有任何时空间隙」时触发（onCorpseDied 里判断），
   不再看「打死了几只加强版」；
 - 也就是说：你同时召 n 只凋灵 → 有 n 个 corpse（1 只加强 + n-1 只未加强），
   只要把世界上所有 corpse 清空，就算通关；
@@ -963,8 +912,6 @@ CWS 会在出生点附近生成 *_storm_spawn_platform 结构（9 个生物群�
 
 ---
 
----
-
 ## 2026-11-06 21:5x · version_0.0.4：修 0.0.3 的两个问题 + 剩余功能一次补齐
 
 产物：`final_modpack/version_0.0.4/不死的凋灵-0.0.4.mrpack`（309.0 MB，51 mod）
@@ -1031,8 +978,6 @@ Attributes -> [{Base: 150.0d, Name: "generic.max_health"}, ...]
 
 7 项：PVP 武器特效、宠物是否可被感染、Boss 血量倍率上限、召唤标签上限、全服 W.A.R. 上限、
 光束感染开关、加强 corpse 加速感染开关。按用户要求**没有**给「corpse 免伤」和「凋零腐败」做开关。
-
----
 
 ---
 
@@ -1115,8 +1060,6 @@ summon minecraft:zombie -> Summoned / Test passed          ← 普通生物不�
 ### 5. 调试命令扩展
 
 `/witherchallenge status` 现在还会输出：`感染结束=true/false｜挑战 n/2（已完成/失败）`。
-
----
 
 ---
 
@@ -1210,3 +1153,184 @@ DRAGON_BREATH / WITHER / WITHER_SKULL`（外加箭、药水、玩家来源），
 - 指南书、起始存档、配置面板、`server.zip`
 
 ---
+
+## 2026-11-06 12:2x · 目录整理 + 客户端崩溃修复（第 1 次交付的补丁）
+
+### A. 所有产出物收进 `AI_document/`
+
+| 现在的位置 | 原来 |
+| --- | --- |
+| `AI_document/final_modpack/version_0.0.1/不死的凋灵-1.0.0.mrpack` | `dist/` |
+| `AI_document/addon/` `pack/` `patched_mods/` `tools/` | 工作区根 |
+| `AI_document/README.md` `CHANGELOG.md` `交付报告-第1次.md` | 工作区根 |
+
+脚本路径常量同步改成：`TOOLS_DIR`(tools) / `PROJECT`(AI_document) / `ROOT`(工作区根)；
+`addon/build.gradle` 里编译期引用的第三方 jar 路径改成 `../../凋暴/mods`、`../../classcial_mods`。
+重新跑过 `patch_wwst.py` 与 `build_pack.py`，产物正常。
+
+### B. 客户端崩溃：ImmediatelyFast 1.2.4 + Oculus 1.8.0
+
+用户 11:52 的错误报告：游戏退出码 -1，日志最后一行是
+`ImmediatelyFast: Failed to initialize Iris compatibility`，之后没有任何异常栈。
+
+根因（反编译 `ImmediatelyFast-1.2.4+1.20.1.jar` 的 `IrisCompat.init`）：
+
+```java
+Class.forName("net.coderbot.iris.vertices.ImmediateState");   // 旧 Iris 包名
+...
+} catch (Throwable e) {
+    LOGGER.error("Failed to initialize Iris compatibility...", e);
+    System.exit(-1);        // ← 直接杀进程
+}
+```
+
+包里是 Oculus 1.8.0（新包名 `net.irisshaders.iris.*`），所以必然 ClassNotFoundException →
+必然 `System.exit(-1)`。IF 在 1.20.1 上最后一个构建就是 1.2.4，没有能认新包名的 1.20.1 版本。
+
+处理：**从清单里删除 ImmediatelyFast**（`tools/pack_plan.py` 的 `DELETE` 里有完整注释）。
+Embeddium + Oculus + ModernFix + BadOptimizations + EntityCulling 仍保留。
+
+验证：把用户的实例整份复制到 `_build/client-test/inst`（不动用户目录），在副本里删掉 IF 后启动两次：
+
+```
+[12:05:56] ModernFix: Game took 40.774 seconds to start      ← 到主菜单
+[12:10:21] ModernFix: Game took 34.0 seconds to start        ← 换新 wwst 副本后再次确认
+```
+
+### C. 顺手修掉的 wwst 数据问题（副本）
+
+- 删掉 wwst 自带的 `assets/minecraft/models/item/debris.json`
+  （Blockbench 导出的非法旋转角 -6.57529，每次进游戏刷一条 `Failed to load model`）。
+  连同此前的 395 份战利品表，副本共剔除 **396** 个文件。
+- `patched_mods/wwst-0.5.5-1.20.1-Forge-bugfix-wc1.jar` 重新生成（158.9 MB）。
+
+### D. 当前清单规模
+
+**51 个 mod = 44 个 Modrinth `files` + 7 个 `overrides/mods`**（含附属 mod）。
+mrpack：`AI_document/final_modpack/version_0.0.1/不死的凋灵-1.0.0.mrpack`，308.9 MB。
+
+---
+
+## 2026-11-06 · 第 1 次交付（骨架 + 全量 mod + 首批功能 + 服务端实测）
+
+### 1. 打包骨架（新增）
+
+| 路径 | 说明 |
+| --- | --- |
+| `pack/modrinth.index.json` | mrpack 清单；公开 mod 走 `files` + 下载链接（sha1/sha512 取自 Modrinth），其余走 overrides |
+| `pack/overrides/mods/` | 7 个 jar：查不到 Modrinth 哈希的 + 改过的副本 + 附属 mod |
+| `pack/overrides/config/` | 从凋暴包复制并清掉残留（214 个文件） |
+| `final_modpack/version_0.0.1/不死的凋灵-1.0.0.mrpack` | 最终产物，**308.9 MB，51 个 mod**（44 files + 7 overrides） |
+
+校验结果：`formatVersion=1`、`minecraft=1.20.1`、`forge=47.4.28`、
+45 条 files 全部带 sha1/sha512/downloads，无缺项。
+
+### 2. mod 清单落地（55 → 51 + 附属 mod = 52）
+
+**删除 4 个**
+
+| jar | 原因 |
+| --- | --- |
+| classcial_mods/witherstormmod-1.20.1-4.2.1-all.jar | 与凋暴包 CWS 构建重复（2427 个文件哈希一致，仅 2 张 5120×5120 贴图不同），保留凋暴包高清版 |
+| 凋暴/mods/geckolib-forge-1.20.1-4.8.2.jar | 与 4.8.4 重复 modid，必崩；W.A.R. 要求 4.8.4 |
+| 凋暴/mods/[自动汉化更新] I18nUpdateMod-3.7.0-all.jar | 只有 `fabric.mod.json`，Forge 端不加载 |
+| 凋暴/mods/Pehkui-3.8.2+1.20.1-forge.jar | 无 mod 依赖、无类引用的历史残留 |
+
+**替换 2 个（换成 1.20.1 构建）**
+
+| 原 | 换成 |
+| --- | --- |
+| ImmediatelyFast-Forge-1.5.3+1.20.4.jar | ImmediatelyFast-1.2.4+1.20.1.jar |
+| fast-ip-ping-v1.0.8-mc1.20.4-forge.jar | fast-ip-ping-mc1.20.1-forge-v1.0.0.jar |
+
+**`overrides/mods` 携带 7 个**：CWS（凋暴包高清构建）、W.A.R. B1.4.5、wwst 修改副本、
+CWSM V-Sides 1.1.0、CommandToolExpansion2.1、edf-remastered 4.3、附属 mod。
+
+### 3. 改了第三方 jar 的副本：wwst
+
+| 项 | 内容 |
+| --- | --- |
+| 原件 | `凋暴/mods/wwst-0.5.5-1.20.1-Forge-bugfix.jar`（**未改动**） |
+| 副本 | `patched_mods/wwst-0.5.5-1.20.1-Forge-bugfix-wc1.jar`（158.9 MB） |
+| 生成脚本 | `tools/patch_wwst.py`（可重复执行，幂等） |
+| 回滚 | 删掉副本、把 `tools/pack_plan.py` 的 `PATCHED` 置空即可回到原件 |
+
+改了三处：
+
+1. 删掉 wwst 自带的 **395 份原版方块战利品表副本**（`data/minecraft/loot_tables/**`）。
+   这些副本是坏的：门类少一个引号、箱子类 `set_container_contents` 缺 `"type"`，
+   实测会让服务端刷 100+ 条 `Couldn't parse element loot_tables`，对应方块破坏后无掉落。
+   删掉后原版表正常生效（已验证错误数 0）。
+2. 修 `data/minecraft/loot_tables/blocks/{acacia,birch,dark_oak,jungle,oak}_door.json`
+   的 `half"` → `"half"`（这 5 个文件其实随第 1 条一起删掉了，修法保留以备将来）。
+3. 修 `data/witherstormmod/recipes/resummon_withered_horseman.json`：
+   `nbt` 字段的 SNBT 整行没有转义，JSON 无效；已把内层引号转义，配方现在能加载。
+
+### 4. 附属 mod `witherchallenge` 1.0.0（新增，源码在 `addon/`）
+
+| 内容 | 说明 |
+| --- | --- |
+| `witherchallenge:infection_core` | 感染核心，堆叠 64，2 行 tooltip |
+| `witherchallenge:infection_arrow` | 感染力量之箭，堆叠 64 |
+| `witherchallenge:wither_end_book` | 凋灵终结书（未激活），堆叠 1，稀有 |
+| `witherchallenge:activated_wither_end_book` | 激活的凋灵终结书，带附魔光效（`isFoil`） |
+| `witherchallenge:wither_end_knife` | 凋灵终结刀：5 攻 / 4.5 速 / 附魔 15 / 无限耐久 / 抗火 |
+| `witherchallenge:wither_end_war_axe` | 凋灵终结战斧：13 攻 / 1.5 速 / 附魔 15 / 无限耐久 / 抗火 |
+| 实体 `witherchallenge:infection_arrow` | 基础伤害恒 0、命中即消失、不可拾回、无限附魔不生效；弓/弩均可用；客户端有独立渲染器 |
+| 配方 `witherchallenge:infection_arrow` | 8 个感染核心围 1 支箭（工作台） |
+| 配方 `witherchallenge:wither_end_book` | 钻石/感染核心/铁锭 + 感染核心/命令方块书/感染核心 + 红石粉/感染核心/绿宝石 |
+| 创造标签页 | 「不死的凋灵」，**6 个物品按流程顺序排列**（核心 → 箭 → 书 → 激活书 → 刀 → 斧） |
+| lang | zh_cn / en_us 全量 |
+| 数据补丁 | 补上 wwst 引用但缺失的 tag：`bwsb:shiny`、`bwsb:tick`、`afb:exception_nbt`、`minecraft:replaceable_plants` |
+| 调试命令 | `/witherchallenge status\|recipes\|entities`（OP，`status` 会打印配方数/凋暴数/时空间隙数/Mangled 数） |
+
+**这 6 个物品里，行为还没接完的部分（第三批）**：
+激活书的「右击 IV 级信标」、铁砧升级、刀/斧对时空间隙的轻击/重击判定与特效、
+对凋暴体内命令方块的 4×25% 伤害。物品本身已可正常获得/手持/造成基础攻击伤害。
+
+`data/witherchallenge/tags` 与 `data/bwsb`、`data/afb`、`data/minecraft/tags` 的补丁
+属于「我们自己的 mod 提供数据」，不改任何第三方文件。
+
+### 5. 运行期实测（专用服务端，48 个 mod）
+
+测试脚本 `tools/server_smoke.py`（起服 → RCON 发指令 → 断言 → 关服），
+环境：Forge 47.4.28 + 48 mods，全新世界，`-Xmx6G`。
+
+```
+[46s] Done (…)!                 # 世界加载完成，无崩溃
+summon item {witherchallenge:infection_core}   -> Summoned new Infection Core
+summon item {witherchallenge:infection_arrow}  -> Summoned new Infection Arrow
+summon witherchallenge:infection_arrow         -> Summoned new Infection Arrow（实体注册成功）
+summon withering_away_reborn:the_mangled       -> Summoned new The Mangled
+summon witherstormmod:wither_storm             -> Summoned new Wither Storm
+summon minecraft:wither → kill                 -> Killed Wither
++5s  后处理动画实体存在（wither_post_death_cutscane_entitty）
++10s 时空间隙出现：Health 100.0f, PersistenceRequired 1b, Pos [-5.5, 102, -3.5]
+```
+
+配方：`/witherchallenge recipes` → **配方总数 1360**，其中
+`witherchallenge:infection_arrow` 已在列。
+
+> 注：日志里那条 `Loaded 10 recipes` 是加载中途的一次计数（KubeJS 之后的真实计数是 1360），
+> 已用 `/witherchallenge recipes` 实测确认，不是问题。
+
+### 6. 运行期问题清单（本次定位）
+
+| # | 问题 | 处理 |
+| --- | --- | --- |
+| 1 | `entity_texture_features` 7.0.8 让**专用服务端**崩溃（`BrigadierExceptions.<clinit>` 触发加载 `Screen`，`invalid dist DEDICATED_SERVER`） | 客户端包保留；服务端包剔除 |
+| 2 | `fullbright`、`torohealth`、`oculus` 同样在服务端构造期崩溃 | 同上，已进 `SERVER_EXCLUDE` |
+| 3 | wwst 的 395 份原版战利品表 + 1 份配方是坏的 | 已用修改副本修复 |
+| 4 | wwst 的 `bwsb:*` 数据包引用了未安装的 `bwsb`/`afb` mod，2 条 tag 加载告警（非致命） | 我们补了空 tag；wwst 自带的部分 `bwsb:*.mcfunction` 命令语法在新版本无效（`Failed to load function bwsb:shrink_4-5`），属于 wwst 本身与 1.20.1 不匹配，待确认是否补装其配套 mod |
+| 5 | `config/attributefix.json` 里全是已删 mod 的属性，刷 27 条 ERROR | 从 overrides 里删除该配置，让 mod 重新生成 |
+
+### 7. 构建环境（本机专项，不进交付物）
+
+本工作区被 DSH 的 AppContainer 沙箱限制：`Files.isWritable()` 恒返回 false，
+而 JDK zipfs 用 `readOnly = !Files.isWritable(path)` 判定只读，
+导致 ForgeGradle 的 AccessTransformer 步骤（用 zipfs 写 jar）必然失败。
+
+处理：把 JDK 的 `jdk.zipfs` 模块源码解出来，`ZipFileSystem.java` 里那一行改成
+`this.readOnly = false`，单独编译成 patch 目录，构建时用
+`JDK_JAVA_OPTIONS=--patch-module jdk.zipfs=_build/jdk-patch/mods/jdk.zipfs` 注入。
+**只影响本机构建**；用户自己账号下直接 `gradlew build` 即可。
