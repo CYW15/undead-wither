@@ -7,7 +7,7 @@
 
 PACK_NAME = "凋亡回响"
 PACK_VERSION = "1.0.0"
-OUT_VERSION = "0.0.27"   # 交付目录 / mrpack 文件名用这个
+OUT_VERSION = "0.0.28"   # 交付目录 / mrpack 文件名用这个
 MC_VERSION = "1.20.1"
 FORGE_VERSION = "47.4.28"
 

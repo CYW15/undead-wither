@@ -63,8 +63,8 @@ public final class WitherPresence {
                     withers.add(e);
                 }
             }
+            WitherAnchorData.tickLevel(level);
             boolean night = !withers.isEmpty();
-            updateForcedChunks(level, withers);
             if (night && server.getTickCount() % SPAWN_PERIOD == 0) {
                 for (Entity w : withers) {
                     spawnWitherSkeletons(level, w);
@@ -98,40 +98,19 @@ public final class WitherPresence {
         }
     }
 
-    // ------------------------------------------------------------- 强制加载
-
-    private static void updateForcedChunks(ServerLevel level, List<Entity> withers) {
-        Set<Long> desired = new HashSet<>();
-        for (Entity w : withers) {
-            BlockPos pos = w.blockPosition();
-            int cx = pos.getX() >> 4;
-            int cz = pos.getZ() >> 4;
-            for (int dx = -FORCE_RADIUS; dx <= FORCE_RADIUS; dx++) {
-                for (int dz = -FORCE_RADIUS; dz <= FORCE_RADIUS; dz++) {
-                    desired.add(pack(cx + dx, cz + dz));
-                }
-            }
+    /** 凋灵一生成就登记锚点（避免「生成后立刻传送走、还没来得及扫描」的丢档）。 */
+    @SubscribeEvent
+    public static void onWitherJoin(net.minecraftforge.event.entity.EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide() || !(event.getLevel() instanceof ServerLevel level)) {
+            return;
         }
-        Set<Long> current = FORCED.computeIfAbsent(level, k -> new HashSet<>());
-        for (Long key : desired) {
-            if (current.add(key)) {
-                level.setChunkForced((int) (key >> 32), (int) (long) key, true);
-            }
+        if (event.getEntity().getType() != EntityType.WITHER) {
+            return;
         }
-        List<Long> stale = new ArrayList<>();
-        for (Long key : current) {
-            if (!desired.contains(key)) {
-                stale.add(key);
-            }
-        }
-        for (Long key : stale) {
-            current.remove(key);
-            level.setChunkForced((int) (key >> 32), (int) (long) key, false);
-        }
-    }
-
-    private static long pack(int cx, int cz) {
-        return ((long) cx << 32) | (cz & 0xFFFFFFFFL);
+        WitherAnchorData.get(level).add(level, event.getEntity().getUUID(), event.getEntity().blockPosition());
+        WitherChallenge.LOGGER.info("[凋亡回响] 登记凋灵锚点：{} @ {}（{}）",
+                event.getEntity().getUUID(), event.getEntity().blockPosition(),
+                level.dimension().location());
     }
 
     // ------------------------------------------------------------- 同步给客户端（护身符 tooltip）
