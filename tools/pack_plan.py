@@ -7,7 +7,7 @@
 
 PACK_NAME = "凋亡回响"
 PACK_VERSION = "1.0.0"
-OUT_VERSION = "0.0.29"   # 交付目录 / mrpack 文件名用这个
+OUT_VERSION = "0.0.31"   # 交付目录 / mrpack 文件名用这个
 MC_VERSION = "1.20.1"
 FORGE_VERSION = "47.4.28"
 
@@ -35,6 +35,10 @@ DELETE = [
     # 而包里是 Oculus 1.8.0（新包名 net.irisshaders.iris.*），ClassNotFoundException 之后
     # 代码里直接 System.exit(-1)（IrisCompat.init 第 46-49 行），游戏必然秒退、且日志里没有异常栈。
     (SRC_DIEFENG, "ImmediatelyFast-Forge-1.5.3+1.20.4.jar", "与 Oculus 1.8.0 不兼容（IF 1.2.4 会 System.exit），且 1.5.3 是 1.20.4 构建，直接去掉"),
+    # 2026-11-10 用户反馈「凋灵强度太高」：强化凋灵（灵魂激光 / 弹幕 / 夺舍 / 偏转）
+    # 全部来自 Wither Reincarnated。删掉它不影响挑战流程：
+    # 时空间隙由 W.A.R. 自己的 WhenWitherDies（认任意 WitherBoss）生成。
+    (SRC_CLASSIC, "witherreincarnated-1.20.1-1.0.5.jar", "强化凋灵来源；用户觉得太强，删除。W.A.R. 的时空间隙生成不依赖它"),
 ]
 
 # ---------------------------------------------------------------- 替换
@@ -101,7 +105,7 @@ CONFIG_RESIDUE = [
     "ending_library", "explosiveenhancement", "firstperson", "goety", "goety_revelation",
     "highlighter", "itemborders", "mobbattle", "moonlight", "notenoughanimations",
     "obscuria", "replaymod", "revelationfix", "roundabout", "royalvariations",
-    "shouldersurfing", "sound_physics_remastered", "transition", "trender", "waveycapes",
+    "shouldersurfing", "sound_physics_remastered", "transition", "trender", "witherreincarnated", "waveycapes",
     # 删掉的 mod 对应的配置
     "pehkui-client.toml", "pehkui-common.toml", "fabric",
     # AttributeFix 的配置里全是已删 mod 的属性（goety_revelation 等），删掉让它按实际 mod 重建

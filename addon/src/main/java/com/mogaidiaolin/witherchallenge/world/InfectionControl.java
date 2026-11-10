@@ -221,7 +221,8 @@ public final class InfectionControl {
 
     /** 死亡演出/余波等必须放行的实体（不在它们身上做「无来源禁止生成」判定）。 */
     private static final java.util.Set<String> CUTSCENE_IDS = java.util.Set.of(
-            "wither_post_death_cutscane_entitty", "the_aftermath", "aftermath");
+            "wither_post_death_cutscane_entitty", "spawningrift", "the_aftermath", "aftermath",
+            "soulspread", "spreedentity");
 
     /**
      * 这个维度里有没有「感染源」：活着的凋暴、活着的凋灵、或活着的时空间隙。
@@ -242,9 +243,11 @@ public final class InfectionControl {
             if ("minecraft".equals(id.getNamespace()) && "wither".equals(id.getPath())) {
                 return true;
             }
-            if ("withering_away_reborn".equals(id.getNamespace())
-                    && "the_corpse_of_the_wither".equals(id.getPath())) {
-                return true;
+            if ("withering_away_reborn".equals(id.getNamespace())) {
+                String path = id.getPath();
+                if ("the_corpse_of_the_wither".equals(path) || CUTSCENE_IDS.contains(path)) {
+                    return true;
+                }
             }
         }
         return false;

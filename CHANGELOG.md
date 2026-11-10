@@ -6,6 +6,48 @@
 
 ---
 
+## 2026-11-10 19:5x · version_0.0.31：去掉滑翔修复 + 修「凋灵死亡链被拦」
+
+产物：`final_modpack/version_0.0.31/`
+
+### 1. 删除 `ElytraFlightFix`
+
+用户确认不需要「滑翔中受伤不打断」这个改动，删除整个类（0.0.29 引入）。
+原版行为恢复：滑翔中受伤会被打下来。
+
+### 2. 修一个 0.0.21 埋下的坑：凋灵死亡链被「无感染源不许生成 W.A.R.」拦掉
+
+0.0.21 加的规则是「没有凋暴/凋灵/时空间隙 → 取消所有 W.A.R. 实体生成」。
+但凋灵死亡链的真实顺序是：
+
+```
+凋灵死亡 → wither_post_death_cutscane_entitty（演出，约 185 tick）
+         → spawningrift
+         → 时空间隙
+```
+
+在「凋灵已死、时空间隙还没生成」的空档里，**没有感染源**，
+于是 `spawningrift` 被拦 → 时空间隙永远不出现 → 挑战第一步断掉。
+
+修法：
+- `CUTSCENE_IDS` 白名单加入 `spawningrift`、`soulspread`、`spreedentity`；
+- `hasInfectionSource` 把「死亡演出实体」也算作感染源。
+
+实测（无 WIR、干净存档）：
+
+```
++4s  cutscene:yes  corpse:-
++8s  cutscene:yes  corpse:-
++12s cutscene:-    corpse:yes   ← 时空间隙正常出现
+```
+
+### 3. 0.0.30 内容回顾：删除 Wither Reincarnated（强化凋灵）
+
+- `pack_plan.DELETE` 加入 `witherreincarnated-1.20.1-1.0.5.jar`；
+- 指南书里「强化凋灵」全部改成「凋灵」（步骤 1 与通关检查表）；
+- WIR 的残留配置 `config/witherreincarnated/` 加入 `CONFIG_RESIDUE`，已清掉。
+
+---
 ## 2026-11-10 18:3x · version_0.0.28：修「凋灵离开维度后消失」，改成锚点式强加载
 
 产物：`final_modpack/version_0.0.28/`
