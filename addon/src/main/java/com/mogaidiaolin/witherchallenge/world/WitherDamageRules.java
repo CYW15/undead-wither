@@ -50,8 +50,17 @@ public final class WitherDamageRules {
     private static final Map<UUID, Float> ALLOWED = new HashMap<>();
     /** 最近一次玩家攻击的 tick。 */
     private static final Map<UUID, Long> LAST_PLAYER_HIT = new HashMap<>();
+    /** 第一次看到这只凋灵的 tick。 */
+    private static final Map<UUID, Long> FIRST_SEEN = new HashMap<>();
+    /** 是否已经「锁定」血量（召唤动画结束、到达满血之后才锁定）。 */
+    private static final java.util.Set<UUID> LOCKED = new java.util.HashSet<>();
     /** 玩家伤害的认可窗口（tick）。2 秒足够覆盖玩家一刀 + 击退后的连锁伤害。 */
     private static final long PLAYER_WINDOW = 40L;
+
+    /** 只有装了 WIR（强化凋灵）才启用这两条规则；0.0.31 变体里没有 WIR，就保持原版。 */
+    private static boolean active() {
+        return net.minecraftforge.fml.ModList.get().isLoaded("witherreincarnated");
+    }
 
     // ------------------------------------------------------------- 玩家攻击标记
 
@@ -82,7 +91,7 @@ public final class WitherDamageRules {
 
     @SubscribeEvent
     public static void onAttacked(LivingAttackEvent event) {
-        if (!(event.getEntity() instanceof WitherBoss)) {
+        if (!active() || !(event.getEntity() instanceof WitherBoss)) {
             return;
         }
         DamageSource source = event.getSource();
@@ -122,6 +131,9 @@ public final class WitherDamageRules {
         if (event.phase != TickEvent.Phase.END) {
             return;
         }
+        if (!active()) {
+            return;
+        }
         var server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) {
             return;
@@ -134,18 +146,27 @@ public final class WitherDamageRules {
                 }
                 UUID id = wither.getUUID();
                 float health = wither.getHealth();
+                long first = FIRST_SEEN.computeIfAbsent(id, k -> now);
+                if (!LOCKED.contains(id)) {
+                    // 召唤动画期间（WIR 会把血量从很低填到满）不做任何限制
+                    if (health >= wither.getMaxHealth() - 0.01F || now - first > 30 * 60) {
+                        LOCKED.add(id);
+                        ALLOWED.put(id, health);
+                    } else {
+                        ALLOWED.merge(id, health, Math::max);
+                    }
+                    continue;
+                }
                 Float allowed = ALLOWED.get(id);
                 if (allowed == null) {
                     ALLOWED.put(id, health);
                     continue;
                 }
                 if (health > allowed) {
-                    // 回血 → 拉回
                     wither.setHealth(allowed);
                 } else if (health < allowed) {
                     long last = LAST_PLAYER_HIT.getOrDefault(id, Long.MIN_VALUE / 2);
                     if (now - last > PLAYER_WINDOW) {
-                        // 最近 2 秒没有玩家攻击 → 认为是非玩家伤害，回填
                         wither.setHealth(allowed);
                     } else {
                         ALLOWED.put(id, health);
@@ -162,6 +183,8 @@ public final class WitherDamageRules {
                 }
             }
             LAST_PLAYER_HIT.remove(id);
+            FIRST_SEEN.remove(id);
+            LOCKED.remove(id);
             return true;
         });
     }

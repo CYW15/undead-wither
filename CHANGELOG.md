@@ -6,6 +6,35 @@
 
 ---
 
+## 2026-11-11 09:1x · 再打 0.0.31 / 0.0.32：阵营伤害免疫 + 召唤期不限回血
+
+### 1. 凋暴仍会伤害 W.A.R. 生物
+
+`FactionRules` 之前只取消了「设置攻击目标」（`LivingChangeTargetEvent`），
+但凋暴的头颅、牵引光束、爆炸等伤害**不经过目标选择**，照样能打。
+
+新增 `LivingAttackEvent` 拦截：攻击者与被攻击者同阵营（CWS / W.A.R. / 凋灵 / 原版亡灵）→ 取消伤害。
+弹射物按 `getEntity()`（发射者）判定。
+
+实测（用 CWS 的火焰头颅当攻击者）：
+
+```
+summon witherstormmod:flaming_wither_skull 3 80 0
+damage <WAR 僵尸> 20 minecraft:wither_skull by <骷髅>
+→ Target is invulnerable to the given damage type
+```
+
+### 2. 0.0.32 的凋灵只有 1 点血
+
+WIR 召唤时有「血量从很低填到满」的动画；旧的账本在动画第一帧就把「1 点」记成上限，
+于是永远被拉回 1 点。
+
+修法：**召唤期不限制回血** —— 账本在凋灵首次达到满血（或出现 30 分钟）之前只做
+`allowed = max(allowed, health)`，不做任何回拉；达到满血后才锁定，开始执行
+「非玩家伤害回填 + 禁止回血」。
+
+同时给两条规则加了开关：**只有装了 WIR 才启用**（`ModList.isLoaded("witherreincarnated")`），
+这样 0.0.31（无 WIR）保持原版伤害规则，两个版本对比才有意义。
 ## 2026-11-11 08:5x · 再打 0.0.31 / 0.0.32：转化需要「世界里有凋灵/凋暴/corpse」
 
 前一次把前提完全去掉了，改成「看到就转化」——用户纠正：

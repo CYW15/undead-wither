@@ -4,6 +4,7 @@ import com.mogaidiaolin.witherchallenge.WitherChallenge;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -26,6 +27,29 @@ public final class FactionRules {
     @SubscribeEvent
     public static void onChangeTarget(LivingChangeTargetEvent event) {
         if (isSameFaction(event.getEntity(), event.getNewTarget())) {
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * 阵营内部「伤害级」免疫（用户 2026-11-11：凋暴会敌视 W.A.R. 生物）。
+     *
+     * <p>只取消目标选择不够：凋暴的头颅、牵引光束、爆炸等伤害不走 {@code LivingChangeTargetEvent}，
+     * 照样能打到 W.A.R. 生物。这里在伤害入口再拦一道：攻击者与被攻击者同阵营 → 取消。</p>
+     */
+    @SubscribeEvent
+    public static void onAttack(LivingAttackEvent event) {
+        Entity target = event.getEntity();
+        var source = event.getSource();
+        Entity attacker = source.getEntity();
+        Entity direct = source.getDirectEntity();
+        if (attacker == null) {
+            attacker = direct;
+        }
+        if (attacker == null || attacker == target) {
+            return;
+        }
+        if (isSameFaction(attacker, target)) {
             event.setCanceled(true);
         }
     }
