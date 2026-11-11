@@ -102,6 +102,12 @@ public final class StormCombat {
                 ? new Vec3(target.getX(), target.getY() + target.getEyeHeight() * 0.5D, target.getZ())
                 : event.getEntity().position().add(event.getEntity().getDeltaMovement().normalize().scale(16.0D));
         synchronized (BURSTS) {
+            // 同一只凋暴同时只保留一轮齐射，否则 CWS 每次发射都会新开一轮 → 弹幕成倍放大
+            for (Burst b : BURSTS) {
+                if (b.storm == storm) {
+                    return;
+                }
+            }
             BURSTS.add(new Burst(storm, aim));
         }
         if (level.getGameTime() % 200 == 0) {
