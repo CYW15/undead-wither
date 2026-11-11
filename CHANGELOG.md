@@ -6,6 +6,45 @@
 
 ---
 
+## 2026-11-11 08:2x · version_0.0.32：强化凋灵回归 + 只吃玩家伤害 + 永不回血
+
+产物：`final_modpack/version_0.0.32/`
+
+### 决定
+
+0.0.31 删掉了 Wither Reincarnated（强化凋灵）。用户想了一夜后改主意：
+**保留 WIR，但把它改造成「只受玩家伤害、永不回血」**，于是有 0.0.31 / 0.0.32 两个版本可对比。
+
+### 1. WIR 回归
+
+- `pack_plan.DELETE` 里移除 `witherreincarnated-1.20.1-1.0.5.jar`；
+- `CONFIG_RESIDUE` 里移除 `witherreincarnated`（保留它自己的配置）；
+- mrpack：files 43 + overrides 7 = 50 个 mod（WIR 重新出现在 `files`）；
+- 指南书恢复「强化凋灵」措辞。
+
+### 2. 凋灵只受玩家伤害（`WitherDamageRules`）
+
+`LivingAttackEvent`：目标是 `WitherBoss` 且来源不是玩家 → 取消。
+
+放行的「玩家伤害」：玩家本人近战 / 玩家射出的箭、三叉戟、火球 / 玩家驯服的宠物 /
+玩家点燃的 TNT；`/kill`、虚空（`BYPASSES_INVULNERABILITY`）例外。
+
+实测：
+```
+/ damage 40 mob_attack    → Target is invulnerable to the given damage type
+/damage 2000 out_of_world → Applied（凋灵死亡）
+```
+
+### 3. 凋灵永不回血
+
+每 10 tick 记录「见过的最低血量」，任何回血（WIR 阶段回血、再生药水、治疗）都被拉回。
+
+实测（WIR 把凋灵血量提到 600）：
+```
+初始 600 → 手动设 400 → 再设 550 → 仍是 400 → 再生药水 II 之后 → 仍是 400
+```
+
+---
 ## 2026-11-10 19:5x · version_0.0.31：去掉滑翔修复 + 修「凋灵死亡链被拦」
 
 产物：`final_modpack/version_0.0.31/`
