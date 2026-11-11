@@ -103,6 +103,10 @@ public final class CorpseRules {
             witherStorm.setPhase(0);
         }
         InfectionControl.recordStormSummoned(level);
+        if (by instanceof net.minecraft.server.level.ServerPlayer sp) {
+            com.mogaidiaolin.witherchallenge.registry.ModCriteria.trigger(
+                    com.mogaidiaolin.witherchallenge.registry.ModCriteria.AWAKEN_STORM, sp);
+        }
         level.playSound(null, storm.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER,
                 SoundSource.WEATHER, 100.0F, 1.0F);
         level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, pos.x, pos.y + 1.0D, pos.z, 4, 1.0D, 1.0D, 1.0D, 0.0D);

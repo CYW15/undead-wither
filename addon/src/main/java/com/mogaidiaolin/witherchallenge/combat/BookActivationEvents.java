@@ -73,6 +73,10 @@ public final class BookActivationEvents {
             activated.setHoverName(held.getHoverName());
         }
         player.setItemInHand(event.getHand(), activated);
+        if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+            com.mogaidiaolin.witherchallenge.registry.ModCriteria.trigger(
+                    com.mogaidiaolin.witherchallenge.registry.ModCriteria.BEACON_4, sp);
+        }
         level.playSound(null, pos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 1.0F);
         if (level instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.END_ROD,

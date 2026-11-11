@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-11-11 09:4x · 再打 0.0.31 / 0.0.32：修两个拿不到的成就
+
+用户反馈：用 corpse 召唤凋暴后拿不到对应成就。
+
+### 原因
+
+9 个成就里有两个用的是自定义触发器，但**代码里从来没触发过**：
+
+| 成就 | 触发器 | 原状态 |
+| --- | --- | --- |
+| `awaken_storm`（召唤凋暴） | `witherchallenge:awaken_storm` | 只在 `ModCriteria` 里注册，没有任何地方 `trigger` |
+| `beacon_4`（四级信标激活终结书） | `witherchallenge:beacon_4` | 同上 |
+
+所以这两个成就永远不可能完成（不是显示问题，是根本没有进度事件）。
+
+### 修法
+
+- `CorpseRules.summonStorm(...)` 成功后在 `by`（服务端玩家）上触发 `AWAKEN_STORM`；
+- `BookActivationEvents` 在书被激活（信标 ≥ IV）后触发 `BEACON_4`。
+
+其余 7 个用的是原版触发器（`inventory_changed` / `player_killed_entity` / `tick`），本来就正常。
+
+两个变体已重打。
+
+---
 ## 2026-11-11 09:3x · 再打 0.0.31 / 0.0.32：凋灵上限变化时重新解锁
 
 ### 现象
