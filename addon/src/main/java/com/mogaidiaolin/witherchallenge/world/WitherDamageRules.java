@@ -52,6 +52,8 @@ public final class WitherDamageRules {
     private static final Map<UUID, Long> LAST_PLAYER_HIT = new HashMap<>();
     /** 第一次看到这只凋灵的 tick。 */
     private static final Map<UUID, Long> FIRST_SEEN = new HashMap<>();
+    /** 上一次看到的最大生命值；WIR 会在生成后抬高上限，上限一变就重新解锁。 */
+    private static final Map<UUID, Float> LAST_MAX = new HashMap<>();
     /** 是否已经「锁定」血量（召唤动画结束、到达满血之后才锁定）。 */
     private static final java.util.Set<UUID> LOCKED = new java.util.HashSet<>();
     /** 玩家伤害的认可窗口（tick）。2 秒足够覆盖玩家一刀 + 击退后的连锁伤害。 */
@@ -147,9 +149,17 @@ public final class WitherDamageRules {
                 UUID id = wither.getUUID();
                 float health = wither.getHealth();
                 long first = FIRST_SEEN.computeIfAbsent(id, k -> now);
+                float maxHealth = wither.getMaxHealth();
+                Float lastMax = LAST_MAX.get(id);
+                if (lastMax != null && Math.abs(lastMax - maxHealth) > 0.01F) {
+                    // 上限变了（WIR 把 300 抬到 600 之类）→ 重新进入「不限回血」阶段
+                    LOCKED.remove(id);
+                    ALLOWED.put(id, health);
+                }
+                LAST_MAX.put(id, maxHealth);
                 if (!LOCKED.contains(id)) {
                     // 召唤动画期间（WIR 会把血量从很低填到满）不做任何限制
-                    if (health >= wither.getMaxHealth() - 0.01F || now - first > 30 * 60) {
+                    if (health >= maxHealth - 0.01F || now - first > 30 * 60) {
                         LOCKED.add(id);
                         ALLOWED.put(id, health);
                     } else {
@@ -185,6 +195,7 @@ public final class WitherDamageRules {
             LAST_PLAYER_HIT.remove(id);
             FIRST_SEEN.remove(id);
             LOCKED.remove(id);
+            LAST_MAX.remove(id);
             return true;
         });
     }
