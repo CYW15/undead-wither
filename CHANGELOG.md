@@ -6,6 +6,45 @@
 
 ---
 
+## 2026-11-11 08:4x · version_0.0.32（重写）：血条账本式「只吃玩家伤害」
+
+产物：`final_modpack/version_0.0.32/`（覆盖同名文件）
+
+### 0.0.32 第一版为什么没用
+
+WIR 的 `WitherBossMixin` 在 `WitherBoss#hurt` 的 **HEAD** 注入并 `callback.cancel()`，
+原版方法体不执行；而 Forge 的 `LivingAttackEvent` 正是在 `LivingEntity#hurt` 里触发的
+—— 所以对凋灵**事件根本不会触发**，我原来那套「取消事件」等于没写。
+
+### 新做法：血量账本（不依赖事件是否触发）
+
+每 tick 为每只凋灵维护「允许血量 `allowed`」：
+
+| 情况 | 处理 |
+| --- | --- |
+| 血量 > allowed（任何回血：WIR 阶段回血 / 再生 / 治疗） | 立刻 `setHealth(allowed)` |
+| 血量 < allowed，且最近 2 秒内没有玩家攻击过它 | 判定为非玩家伤害 → 回填到 `allowed` |
+| 血量 < allowed，且最近 2 秒内有玩家攻击 | 认可这次扣血，更新 `allowed` |
+
+「玩家攻击」由 `AttackEntityEvent`（近战）与 `ProjectileImpactEvent`（玩家射出的弹射物）标记。
+
+### 实测（WIR 把血量提到 600）
+
+```
+初始 600
+mob_attack 40   → 600
+explosion 40    → 600
+fall 40         → 600
+lava 40         → 600
+out_of_world    → 凋灵死亡（/kill 类例外）
+```
+
+### 保留
+
+- WIR 本体（强化凋灵：灵魂激光、弹幕、夺舍等）保留；
+- 0.0.31 的凋灵死亡链修复（`spawningrift` 白名单）保留。
+
+---
 ## 2026-11-11 08:2x · version_0.0.32：强化凋灵回归 + 只吃玩家伤害 + 永不回血
 
 产物：`final_modpack/version_0.0.32/`
