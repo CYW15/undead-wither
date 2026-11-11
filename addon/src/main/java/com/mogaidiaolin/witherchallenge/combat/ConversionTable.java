@@ -93,6 +93,7 @@ public final class ConversionTable {
         if (target.hasCustomName()) {
             mob.setCustomName(target.getCustomName());
         }
+        mob.getPersistentData().putBoolean("wc_converted", true);
         if (mob.level() instanceof ServerLevel serverLevel) {
             serverLevel.addFreshEntity(mob);
         }

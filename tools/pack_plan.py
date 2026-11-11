@@ -71,6 +71,11 @@ PATCHED = {
     },
 }
 
+WIR_EXCLUDED = False
+if WIR_EXCLUDED:
+    DELETE.append((SRC_CLASSIC, "witherreincarnated-1.20.1-1.0.5.jar",
+                   "0.0.31 变体：不含强化凋灵"))
+
 # ---------------------------------------------------------------- 强制走 overrides/mods
 # 不在 Modrinth（CurseForge 独占 / 自制改版）：jar 直接放进 mrpack 的 overrides/mods
 FORCE_OVERRIDES = {

@@ -203,6 +203,10 @@ public final class InfectionControl {
             }
             return;
         }
+        // 由「亡灵转化」产生的实体放行（触发它的就是凋灵侧实体，属于正常玩法）
+        if (event.getEntity().getPersistentData().getBoolean("wc_converted")) {
+            return;
+        }
         // 死亡演出 / 余波这类「线路上的」实体必须放行，否则凋灵死亡链会断
         if (CUTSCENE_IDS.contains(id.getPath())) {
             return;

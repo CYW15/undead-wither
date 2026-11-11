@@ -1,6 +1,7 @@
 package com.mogaidiaolin.witherchallenge.combat;
 
 import com.mogaidiaolin.witherchallenge.WitherChallenge;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -14,16 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 有时空间隙在场时，原版亡灵**只要注意到** W.A.R. 生物就转化（不需要接触）。
+ * 原版亡灵**看到「凋灵侧」实体就转化**（用户 2026-11-11 重新确认）。
  *
- * <p>用户 2026-11-07 定：不再要求碰撞箱接触，也不驱动寻路——
- * 只要「看得见」就转化：距离在该亡灵自己的侦测范围（{@code FOLLOW_RANGE}）内，
- * 且有视线（{@code hasLineOfSight}）。</p>
+ * <p>触发对象：W.A.R. 的任何生物、凋灵本体、凋暴、凋零骷髅。
+ * 不再要求「附近有时空间隙」，也不要求接触——距离在该亡灵自己的侦测范围
+ * （{@code FOLLOW_RANGE}）内且有视线（{@code hasLineOfSight}）即可。</p>
  *
  * <ul>
- *   <li>触发条件：同维度存在活着的时空间隙；</li>
- *   <li>每 10 tick 扫一次，只做距离 + 视线判定，**不碰 AI/寻路**；</li>
- *   <li>转化走 {@link ConversionTable}；表里没有的亡灵挂凋零 II。</li>
+ *   <li>每 10 tick 扫一次，只做距离 + 视线判定，不碰 AI/寻路；</li>
+ *   <li>转化走 {@link ConversionTable}（对应关系见 task文档更新/转化表.docx）；</li>
+ *   <li>表里没有的亡灵不产生任何效果。</li>
  * </ul>
  */
 @Mod.EventBusSubscriber(modid = WitherChallenge.MODID)
@@ -31,6 +32,25 @@ public final class UndeadConversion {
 
     /** 侦测范围取不到时的兜底值。 */
     private static final double FALLBACK_RANGE = 16.0D;
+
+    /** 凋灵侧实体判定。 */
+    private static boolean isWitherSide(ResourceLocation id) {
+        if (id == null) {
+            return false;
+        }
+        String ns = id.getNamespace();
+        String path = id.getPath();
+        if ("withering_away_reborn".equals(ns)) {
+            return true;
+        }
+        if ("minecraft".equals(ns)) {
+            return "wither".equals(path) || "wither_skeleton".equals(path);
+        }
+        if ("witherstormmod".equals(ns)) {
+            return "wither_storm".equals(path) || path.contains("wither_skeleton");
+        }
+        return false;
+    }
 
     @SubscribeEvent
     public static void onLevelTick(TickEvent.LevelTickEvent event) {
@@ -44,36 +64,22 @@ public final class UndeadConversion {
         for (Entity e : level.getAllEntities()) {
             all.add(e);
         }
-        boolean corpseNearby = false;
-        for (Entity e : all) {
-            if (WeaponCombatEvents.isCorpse(e) && e.isAlive()) {
-                corpseNearby = true;
-                break;
-            }
-        }
-        if (!corpseNearby) {
-            return;
-        }
-
-        List<Mob> warMobs = new ArrayList<>();
+        List<Entity> sources = new ArrayList<>();
         List<Mob> undead = new ArrayList<>();
         for (Entity e : all) {
-            if (!(e instanceof Mob mob) || !mob.isAlive()) {
+            if (!e.isAlive()) {
                 continue;
             }
-            if (FactionRules.isVanillaUndead(mob)) {
+            ResourceLocation id = EntityType.getKey(e.getType());
+            if (isWitherSide(id)) {
+                sources.add(e);
+            } else if (e instanceof Mob mob && FactionRules.isVanillaUndead(mob)) {
                 undead.add(mob);
-            } else {
-                var id = EntityType.getKey(mob.getType());
-                if (id != null && "withering_away_reborn".equals(id.getNamespace())) {
-                    warMobs.add(mob);
-                }
             }
         }
-        if (undead.isEmpty() || warMobs.isEmpty()) {
+        if (undead.isEmpty() || sources.isEmpty()) {
             return;
         }
-
         for (Mob watcher : undead) {
             if (!watcher.isAlive()) {
                 continue;
@@ -85,11 +91,11 @@ public final class UndeadConversion {
                 range = FALLBACK_RANGE;
             }
             double rangeSq = range * range;
-            for (Mob war : warMobs) {
-                if (!war.isAlive() || watcher.distanceToSqr(war) > rangeSq) {
+            for (Entity source : sources) {
+                if (source == watcher || !source.isAlive() || watcher.distanceToSqr(source) > rangeSq) {
                     continue;
                 }
-                if (!watcher.hasLineOfSight(war)) {
+                if (!watcher.hasLineOfSight(source)) {
                     continue;
                 }
                 convert(watcher, level);
