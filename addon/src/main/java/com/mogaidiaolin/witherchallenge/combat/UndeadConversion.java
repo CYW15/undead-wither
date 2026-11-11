@@ -17,9 +17,11 @@ import java.util.List;
 /**
  * 原版亡灵**看到「凋灵侧」实体就转化**（用户 2026-11-11 重新确认）。
  *
- * <p>触发对象：W.A.R. 的任何生物、凋灵本体、凋暴、凋零骷髅。
- * 不再要求「附近有时空间隙」，也不要求接触——距离在该亡灵自己的侦测范围
- * （{@code FOLLOW_RANGE}）内且有视线（{@code hasLineOfSight}）即可。</p>
+ * <p><b>前提</b>：这个世界（维度）里存在「凋灵 / 凋暴 / 时空间隙」三者之一，
+ * 转化机制才生效（用户 2026-11-11 确认）。没有这三样时，亡灵看到什么都不转化。</p>
+ *
+ * <p><b>触发对象</b>：W.A.R. 的任何生物、凋灵本体、凋暴、凋零骷髅。
+ * 距离在该亡灵自己的侦测范围（{@code FOLLOW_RANGE}）内且有视线即可，不要求接触。</p>
  *
  * <ul>
  *   <li>每 10 tick 扫一次，只做距离 + 视线判定，不碰 AI/寻路；</li>
@@ -64,6 +66,7 @@ public final class UndeadConversion {
         for (Entity e : level.getAllEntities()) {
             all.add(e);
         }
+        boolean enabled = false;
         List<Entity> sources = new ArrayList<>();
         List<Mob> undead = new ArrayList<>();
         for (Entity e : all) {
@@ -73,9 +76,21 @@ public final class UndeadConversion {
             ResourceLocation id = EntityType.getKey(e.getType());
             if (isWitherSide(id)) {
                 sources.add(e);
+                String ns = id.getNamespace();
+                String path = id.getPath();
+                if ("minecraft".equals(ns) && "wither".equals(path)) {
+                    enabled = true;
+                } else if ("witherstormmod".equals(ns) && "wither_storm".equals(path)) {
+                    enabled = true;
+                } else if ("withering_away_reborn".equals(ns) && "the_corpse_of_the_wither".equals(path)) {
+                    enabled = true;
+                }
             } else if (e instanceof Mob mob && FactionRules.isVanillaUndead(mob)) {
                 undead.add(mob);
             }
+        }
+        if (!enabled) {
+            return;   // 没有凋灵 / 凋暴 / 时空间隙 → 不转化
         }
         if (undead.isEmpty() || sources.isEmpty()) {
             return;
