@@ -1,4 +1,4 @@
-# 凋亡回响（Echo of Decay）
+# 凋亡回响（Undead Wither）
 
 Minecraft **1.20.1 + Forge 47.4.28** 的高难度凋灵主题整合包。
 
