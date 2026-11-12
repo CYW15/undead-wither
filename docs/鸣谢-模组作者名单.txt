@@ -1,0 +1,84 @@
+《凋亡回响》整合包 · 鸣谢名单
+==============================================
+
+【本整合包署名（按贡献排序）】
+  1. DeepSeek Harness（AI 编程助手）
+     附属 mod witherchallenge、全部配置、文档、打包
+  2. cyw12
+     需求设计、玩法设想、测试与验收
+
+【第三方模组作者】
+  本整合包内所有模组的版权归各自作者所有。
+  名称 / 作者，按功能分类：
+
+— 核心玩法 —
+  · Command Tool Expansion — Pandaboi, Tainted
+  · Cracker's Wither Storm Mod（凋暴本体） — nonamecrackers2, Nazaru
+  · CWSM V-Sides（凋暴官方音乐集） — _TheExiIedFeIIow, Vertigo
+  · Ender Dragon Fight Remastered — MrGenie151
+  · Wither Reincarnated — Alexander
+  · Wither Storm Tweaks — 作者未在 jar 元数据中注明
+  · Withering Away: Reborn — Da Jacob / BadPlay3r
+
+— 前置库 —
+  · Architectury — shedaniel
+  · Bookshelf — Darkhax
+  · Cloth Config v10 API — shedaniel
+  · GeckoLib 4 — Gecko, Eliot, AzureDoom, DerToaster, Tslat, Witixin
+  · Iceberg — Grend
+  · KubeJS — LatvianModder
+  · Placebo — Shadows_of_Fire
+  · Prism — Grend
+  · Puzzles Lib — Fuzs
+  · Rhino — latvian.dev, Mozilla
+
+— 性能优化 —
+  · AI-Improvements — BuiltBrokenModding
+  · BadOptimizations — Thosea
+  · Dynamic FPS — juliand665 & LostLuma
+  · Embeddium — embeddedt
+  · EntityCulling — tr7zw
+  · Fast IP Ping — Fallen_Breath
+  · Ferrite Core — malte0811
+  · Memory Leak Fix — FX - PR0CESS
+  · ModernFix — embeddedt
+  · Remove Reloading Screen — dima_dencep
+
+— 界面与信息 —
+  · AppleSkin — squeek
+  · Colorful Hearts — Terrails
+  · Enhanced Boss Bars — Nakuring
+  · Fullbright mod — n8M4
+  · Jade — Snownee
+  · Just Enough Items — mezz
+  · Model Gap Fix — MehVahdJukaar
+  · Mouse Tweaks — Ivan Molodetskikh (YaLTeR)
+  · Sodium Options API — toni
+  · ToroHealth — ToroCraft
+  · Xaero's Minimap（小地图） — xaero96
+  · Xaero's World Map（世界地图） — xaero96
+
+— 视觉与外观 —
+  · CustomSkinLoader — xfl03, JLChnToZ, ZekerZhayard
+  · Entity Model Features — Traben
+  · Entity Texture Features — Traben
+  · Oculus — NanoLive, dima_dencep, coderbot, IMS212, Justsnoopy30, FoundationGames
+
+— 修正与兼容 —
+  · AttributeFix — Darkhax
+  · EnchantmentDescriptions — Darkhax
+  · Fast Workbench — Shadows_of_Fire
+  · FastFurnace — Shadows_of_Fire
+  · Universal Enchants — Fuzs
+
+— 实用工具 —
+  · Simple Voice Chat — Max Henkel
+
+----------------------------------------------
+共 49 个第三方模组。
+
+如果你喜欢其中某个模组，请去它的发布页点赞、反馈或支持作者——
+这是对免费分享作品的模组作者最好的回报。
+
+数据来源：各 mod jar 内 META-INF/mods.toml 的 displayName / authors 字段。
+生成版本：凋亡回响 0.0.26

@@ -12,3 +12,7 @@ addon/run-data/
 
 # 本地缓存
 .gradle/
+
+# Python 缓存
+__pycache__/
+*.pyc
